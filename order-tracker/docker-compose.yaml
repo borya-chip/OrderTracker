@@ -1,0 +1,17 @@
+services:
+  db:
+    container_name: postgres-order-tracker
+    image: postgres:18-alpine
+    ports:
+      - 5432:5432
+    env_file: .env
+    volumes:
+      - order-tracker-data:/usr/lib/postgresql/data
+    networks:
+      - order-tracker-net
+
+volumes:
+  order-tracker-data:
+
+networks:
+  order-tracker-net:
