@@ -7,6 +7,8 @@ import com.order.tracker.repository.OrderRepository;
 import com.order.tracker.service.OrderService;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -36,15 +38,23 @@ public class OrderServiceImpl implements OrderService {
         if (startDate == null && endDate == null) {
             orders = repository.findAll();
         } else if (startDate == null) {
-            orders = repository.findByDateLessThanEqual(endDate);
+            orders = repository.findByDateLessThanEqual(toEndOfDay(endDate));
         } else if (endDate == null) {
-            orders = repository.findByDateGreaterThanEqual(startDate);
+            orders = repository.findByDateGreaterThanEqual(toStartOfDay(startDate));
         } else {
-            orders = repository.findByDateBetween(startDate, endDate);
+            orders = repository.findByDateBetween(toStartOfDay(startDate), toEndOfDay(endDate));
         }
 
         return orders.stream()
                 .map(mapper::toDto)
                 .toList();
+    }
+
+    private LocalDateTime toStartOfDay(final LocalDate date) {
+        return date.atStartOfDay();
+    }
+
+    private LocalDateTime toEndOfDay(final LocalDate date) {
+        return date.atTime(LocalTime.MAX);
     }
 }

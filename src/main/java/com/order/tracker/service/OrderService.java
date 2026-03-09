@@ -9,5 +9,5 @@ public interface OrderService {
 
     OrderDto getById(Long id);
 
-    List<OrderDto> getByDateRange(final LocalDate startDate, final LocalDate endDate);
+    List<OrderDto> getByDateRange(LocalDate startDate, LocalDate endDate);
 }

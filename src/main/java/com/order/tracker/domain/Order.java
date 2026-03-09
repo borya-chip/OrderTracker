@@ -1,6 +1,6 @@
 package com.order.tracker.domain;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,6 +24,6 @@ public class Order {
     private Long id;
 
     private Double amount;
-    private LocalDate date;
+    private LocalDateTime date;
     private String description;
 }
