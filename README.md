@@ -1,28 +1,50 @@
 # Order Tracker
 
-## Описание
-OrderTracker — это приложение для отслеживания заказов, разработанное с использованием Java 17, Spring Boot, и Maven. Оно позволяет управлять заказами, отслеживать их статус и взаимодействовать с базой данных.
+REST API для работы с заказами.
 
-## Технологии
-#### Язык программирования: Java 21
-#### Фреймворк: Spring Boot 4.x
-#### База данных: PostgreSQL
-#### Сборка: Maven
-#### Документация API: Swagger
-#### Контейнеризация: Docker
+## Стек
+- Java 21
+- Spring Boot 4
+- Spring Data JPA
+- PostgreSQL
+- Docker
+- Maven
 
-## Основные функции
-**Создание заказов**
+## Запуск в Docker (БД + приложение)
+1. Скопируй пример переменных:
+   ```bash
+   cp .env.example .env
+   ```
+2. Подними контейнеры:
+   ```bash
+   docker compose up --build -d
+   ```
+3. Проверь, что контейнеры живые:
+   ```bash
+   docker compose ps
+   docker logs -f order-tracker-app
+   docker logs -f postgres-order-tracker
+   ```
 
-**Отслеживание заказов**
+## Запуск приложения локально
+Чтобы приложение взяло те же переменные из `.env`, выполни:
 
-**История изменений статуса заказа**
+```bash
+set -a
+source .env
+set +a
+./mvnw spring-boot:run
+```
 
-**Рейтинг поваров**
+## Полезные команды
+Остановить контейнеры:
 
-**История заказов**
+```bash
+docker compose down
+```
 
+Остановить и удалить volume с данными:
 
-
-## Ссылки
-[Sonar]([https://sonarcloud.io/project/overview?id=zenvxous_OrderTracker](https://sonarcloud.io/summary/overall?id=borya-chip_OrderTracker&branch=main))
+```bash
+docker compose down -v
+```

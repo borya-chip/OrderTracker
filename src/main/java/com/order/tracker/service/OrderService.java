@@ -1,13 +1,20 @@
 package com.order.tracker.service;
 
-import com.order.tracker.dto.OrderDto;
+import com.order.tracker.dto.request.OrderRequest;
+import com.order.tracker.dto.response.OrderResponse;
 
 import java.time.LocalDate;
 import java.util.List;
 
 public interface OrderService {
 
-    OrderDto getById(Long id);
+    OrderResponse create(OrderRequest request);
 
-    List<OrderDto> getByDateRange(LocalDate startDate, LocalDate endDate);
+    OrderResponse getById(Long id);
+
+    List<OrderResponse> getByDateRange(LocalDate startDate, LocalDate endDate, boolean optimizedFetch);
+
+    OrderResponse update(Long id, OrderRequest request);
+
+    void delete(Long id);
 }

@@ -1,3 +1,21 @@
-insert into orders (amount, date, description) values (120.50, '2026-02-15T10:15:30', 'Laptop order');
-insert into orders (amount, date, description) values (75.00, '2026-02-20T13:45:00', 'Mouse order');
-insert into orders (amount, date, description) values (199.99, '2026-03-01T09:05:15', 'Monitor order');
+insert into customers (id, full_name, email, phone_number)
+values (1, 'Demo Customer', 'demo.customer@example.com', '+375291111111');
+
+insert into categories (id, name)
+values (1, 'Burgers');
+
+insert into restaurants (id, name, contact_email, city, address, phone, active)
+values (1, 'Downtown Grill', 'contact@downtowngrill.example', 'Minsk', 'Lenina 10', '+375171234567', true);
+
+insert into meals (id, name, price, cooking_time, category_id, restaurant_id)
+values (1, 'Classic Burger', 12.50, 15, 1, 1);
+insert into meals (id, name, price, cooking_time, category_id, restaurant_id)
+values (2, 'Cheese Burger', 13.90, 17, 1, 1);
+
+insert into orders (id, amount, date, description, customer_id)
+values (1, 26.40, '2026-03-01T12:00:00', 'Lunch order', 1);
+
+insert into order_meals (order_id, meal_id)
+values (1, 1);
+insert into order_meals (order_id, meal_id)
+values (1, 2);
