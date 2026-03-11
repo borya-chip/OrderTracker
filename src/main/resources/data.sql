@@ -1,5 +1,5 @@
-insert into customers (id, full_name, email, phone_number)
-values (1, 'Demo Customer', 'demo.customer@example.com', '+375291111111');
+insert into customers (id, first_name, last_name, email, phone_number)
+values (1, 'Demo', 'Customer', 'demo.customer@example.com', '+375291111111');
 
 insert into categories (id, name)
 values (1, 'Burgers');

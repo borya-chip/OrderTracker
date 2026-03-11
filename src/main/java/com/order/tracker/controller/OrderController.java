@@ -1,6 +1,7 @@
 package com.order.tracker.controller;
 
 import com.order.tracker.dto.request.OrderRequest;
+import com.order.tracker.dto.request.OrderTransactionRequest;
 import com.order.tracker.dto.response.OrderResponse;
 import com.order.tracker.service.OrderService;
 import jakarta.validation.Valid;
@@ -43,6 +44,19 @@ public class OrderController {
             @RequestParam(required = false) final LocalDate endDate,
             @RequestParam(defaultValue = "false") final boolean optimizedFetch) {
         return ResponseEntity.ok(orderService.getByDateRange(startDate, endDate, optimizedFetch));
+    }
+
+    @PostMapping("/transaction")
+    public ResponseEntity<Void> createOrderTransaction(
+            @Valid @RequestBody final OrderTransactionRequest request,
+            @RequestParam(defaultValue = "true") final boolean transactional,
+            @RequestParam(defaultValue = "false") final boolean failAfterMealsSave) {
+        if (transactional) {
+            orderService.createOrderTransactionTx(request, failAfterMealsSave);
+        } else {
+            orderService.createOrderTransactionNoTx(request, failAfterMealsSave);
+        }
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")

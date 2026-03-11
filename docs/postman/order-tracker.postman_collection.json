@@ -1,0 +1,643 @@
+{
+  "info": {
+    "_postman_id": "3d3c5a11-65d5-4a63-a4f6-5eb479e4f201",
+    "name": "Order Tracker API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pizza\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Category By Id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/categories/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories",
+                "{{categoryId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Pizza\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/categories/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories",
+                "{{categoryId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Category",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/categories/{{categoryId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories",
+                "{{categoryId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Customers",
+      "item": [
+        {
+          "name": "Create Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"email\": \"john.doe@example.com\",\n  \"phoneNumber\": \"+375291112233\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/customers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "customers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Customers",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/customers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "customers"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Customer By Id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/customers/{{customerId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "customers",
+                "{{customerId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Customer",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Jane\",\n  \"lastName\": \"Doe\",\n  \"email\": \"jane.doe@example.com\",\n  \"phoneNumber\": \"+375299998877\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/customers/{{customerId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "customers",
+                "{{customerId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Customer",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/customers/{{customerId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "customers",
+                "{{customerId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Restaurants",
+      "item": [
+        {
+          "name": "Create Restaurant",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Downtown Grill\",\n  \"contactEmail\": \"contact@downtowngrill.example\",\n  \"city\": \"Minsk\",\n  \"address\": \"Lenina 10\",\n  \"phone\": \"+375171234567\",\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/restaurants",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "restaurants"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Restaurants",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/restaurants",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "restaurants"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Restaurant By Id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/{{restaurantId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "restaurants",
+                "{{restaurantId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Restaurant",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Downtown Grill Updated\",\n  \"contactEmail\": \"updated@downtowngrill.example\",\n  \"city\": \"Minsk\",\n  \"address\": \"Lenina 11\",\n  \"phone\": \"+375171234568\",\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/{{restaurantId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "restaurants",
+                "{{restaurantId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Restaurant",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/{{restaurantId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "restaurants",
+                "{{restaurantId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Meals",
+      "item": [
+        {
+          "name": "Create Meal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Classic Burger\",\n  \"price\": 12.50,\n  \"cookingTime\": 15,\n  \"categoryId\": {{categoryId}},\n  \"restaurantId\": {{restaurantId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/meals",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "meals"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Meals",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/meals",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "meals"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Meal By Id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/meals/{{mealId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "meals",
+                "{{mealId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Meal",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Cheese Burger\",\n  \"price\": 13.90,\n  \"cookingTime\": 17,\n  \"categoryId\": {{categoryId}},\n  \"restaurantId\": {{restaurantId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/meals/{{mealId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "meals",
+                "{{mealId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Meal",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/meals/{{mealId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "meals",
+                "{{mealId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 26.40,\n  \"date\": \"2026-03-11T12:00:00\",\n  \"description\": \"Lunch order\",\n  \"customerId\": {{customerId}},\n  \"mealIds\": [{{mealId}}]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Orders (Optional Filters)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/orders?startDate=2026-03-01&endDate=2026-03-31&optimizedFetch=false",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "startDate",
+                  "value": "2026-03-01",
+                  "disabled": true
+                },
+                {
+                  "key": "endDate",
+                  "value": "2026-03-31",
+                  "disabled": true
+                },
+                {
+                  "key": "optimizedFetch",
+                  "value": "false"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Order By Id",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "{{orderId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Order",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 28.10,\n  \"date\": \"2026-03-11T13:00:00\",\n  \"description\": \"Updated lunch order\",\n  \"customerId\": {{customerId}},\n  \"mealIds\": [{{mealId}}]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "{{orderId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Order",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/orders/{{orderId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "{{orderId}}"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Order Transaction Scenario",
+      "item": [
+        {
+          "name": "Run Scenario (NoTx, Fail After Meals)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": {{customerId}},\n  \"categoryId\": {{categoryId}},\n  \"restaurantId\": {{restaurantId}},\n  \"amount\": 18.90,\n  \"orderedAt\": \"2026-03-11T14:00:00\",\n  \"description\": \"NoTx check\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/transaction?transactional=false&failAfterMealsSave=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "transaction"
+              ],
+              "query": [
+                {
+                  "key": "transactional",
+                  "value": "false"
+                },
+                {
+                  "key": "failAfterMealsSave",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Run Scenario (Tx, Fail After Meals)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": {{customerId}},\n  \"categoryId\": {{categoryId}},\n  \"restaurantId\": {{restaurantId}},\n  \"amount\": 18.90,\n  \"orderedAt\": \"2026-03-11T14:00:00\",\n  \"description\": \"Tx check\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/transaction?transactional=true&failAfterMealsSave=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "transaction"
+              ],
+              "query": [
+                {
+                  "key": "transactional",
+                  "value": "true"
+                },
+                {
+                  "key": "failAfterMealsSave",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api/v1"
+    },
+    {
+      "key": "categoryId",
+      "value": "1"
+    },
+    {
+      "key": "customerId",
+      "value": "1"
+    },
+    {
+      "key": "restaurantId",
+      "value": "1"
+    },
+    {
+      "key": "mealId",
+      "value": "1"
+    },
+    {
+      "key": "orderId",
+      "value": "1"
+    }
+  ]
+}

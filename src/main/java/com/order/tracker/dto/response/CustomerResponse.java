@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 public class CustomerResponse {
 
     private Long id;
-    private String fullName;
+    private String firstName;
+    private String lastName;
     private String email;
     private String phoneNumber;
 }

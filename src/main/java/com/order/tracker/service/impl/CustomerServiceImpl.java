@@ -65,7 +65,8 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     private void apply(final Customer customer, final CustomerRequest request) {
-        customer.setFullName(request.getFullName());
+        customer.setFirstName(request.getFirstName());
+        customer.setLastName(request.getLastName());
         customer.setEmail(request.getEmail());
         customer.setPhoneNumber(request.getPhoneNumber());
     }

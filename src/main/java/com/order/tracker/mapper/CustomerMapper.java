@@ -13,7 +13,8 @@ public class CustomerMapper {
         }
         return new CustomerResponse(
                 customer.getId(),
-                customer.getFullName(),
+                customer.getFirstName(),
+                customer.getLastName(),
                 customer.getEmail(),
                 customer.getPhoneNumber());
     }

@@ -30,7 +30,9 @@ public class OrderMapper {
                 entity.getDate(),
                 entity.getDescription(),
                 entity.getCustomer() != null ? entity.getCustomer().getId() : null,
-                entity.getCustomer() != null ? entity.getCustomer().getFullName() : null,
+                entity.getCustomer() != null
+                        ? entity.getCustomer().getFirstName() + " " + entity.getCustomer().getLastName()
+                        : null,
                 mealIds,
                 mealNames);
     }

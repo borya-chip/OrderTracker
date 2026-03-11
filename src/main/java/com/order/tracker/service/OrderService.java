@@ -1,6 +1,7 @@
 package com.order.tracker.service;
 
 import com.order.tracker.dto.request.OrderRequest;
+import com.order.tracker.dto.request.OrderTransactionRequest;
 import com.order.tracker.dto.response.OrderResponse;
 
 import java.time.LocalDate;
@@ -17,4 +18,8 @@ public interface OrderService {
     OrderResponse update(Long id, OrderRequest request);
 
     void delete(Long id);
+
+    void createOrderTransactionTx(OrderTransactionRequest request, boolean failAfterMealsSave);
+
+    void createOrderTransactionNoTx(OrderTransactionRequest request, boolean failAfterMealsSave);
 }

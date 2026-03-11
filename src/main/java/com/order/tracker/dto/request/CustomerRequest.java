@@ -12,9 +12,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CustomerRequest {
 
-    @NotBlank(message = "Full name is required")
-    @Size(max = 100, message = "Full name must be at most 100 characters")
-    private String fullName;
+    @NotBlank(message = "First name is required")
+    @Size(max = 100, message = "First name must be at most 100 characters")
+    private String firstName;
+
+    @NotBlank(message = "Last name is required")
+    @Size(max = 100, message = "Last name must be at most 100 characters")
+    private String lastName;
 
     @NotBlank(message = "Email is required")
     @Email(message = "Email has invalid format")

@@ -9,7 +9,8 @@ erDiagram
 
     CUSTOMER {
         bigint id PK
-        varchar full_name
+        varchar first_name
+        varchar last_name
         varchar email
         varchar phone_number
     }
