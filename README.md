@@ -48,4 +48,4 @@ docker compose down
 ```bash
 docker compose down -v
 ```
-Sonar[https://sonarcloud.io/summary/overall?id=borya-chip_OrderTracker&branch=main]
+Sonar https://sonarcloud.io/summary/overall?id=borya-chip_OrderTracker&branch=main
