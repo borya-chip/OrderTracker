@@ -11,6 +11,7 @@ import com.order.tracker.repository.MealRepository;
 import com.order.tracker.repository.RestaurantRepository;
 import com.order.tracker.service.MealService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,7 +63,14 @@ public class MealServiceImpl implements MealService {
         if (!mealRepository.existsById(id)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Meal not found: " + id);
         }
-        mealRepository.deleteById(id);
+        try {
+            mealRepository.deleteById(id);
+            mealRepository.flush();
+        } catch (DataIntegrityViolationException ex) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Meal is used in existing orders and cannot be deleted");
+        }
     }
 
     private Meal findMeal(final Long id) {
