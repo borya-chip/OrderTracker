@@ -4,6 +4,8 @@ import com.order.tracker.dto.request.RestaurantRequest;
 import com.order.tracker.dto.response.RestaurantResponse;
 import com.order.tracker.service.RestaurantService;
 import jakarta.validation.Valid;
+import java.math.BigDecimal;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,6 +39,28 @@ public class RestaurantController {
     @GetMapping
     public ResponseEntity<List<RestaurantResponse>> getAll() {
         return ResponseEntity.ok(restaurantService.getAll());
+    }
+
+    @GetMapping("/search/category/jpql")
+    public ResponseEntity<List<RestaurantResponse>> searchRestaurantsWithJpql(
+            @RequestParam("categoryName") final String categoryName,
+            @RequestParam("minMealPrice") final BigDecimal minMealPrice,
+            @RequestParam("maxMealPrice") final BigDecimal maxMealPrice) {
+        return ResponseEntity.ok(restaurantService.searchRestaurantsByCategoryWithJpql(
+                categoryName,
+                minMealPrice,
+                maxMealPrice));
+    }
+
+    @GetMapping("/search/category/native")
+    public ResponseEntity<List<RestaurantResponse>> searchRestaurantsWithNative(
+            @RequestParam("categoryName") final String categoryName,
+            @RequestParam("minMealPrice") final BigDecimal minMealPrice,
+            @RequestParam("maxMealPrice") final BigDecimal maxMealPrice) {
+        return ResponseEntity.ok(restaurantService.searchRestaurantsByCategoryWithNative(
+                categoryName,
+                minMealPrice,
+                maxMealPrice));
     }
 
     @PutMapping("/{id}")

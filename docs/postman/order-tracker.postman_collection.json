@@ -255,6 +255,70 @@
           }
         },
         {
+          "name": "Search Restaurants By Category (JPQL)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/search/category/jpql?categoryName={{searchCategoryName}}&minMealPrice={{minMealPrice}}&maxMealPrice={{maxMealPrice}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "restaurants",
+                "search",
+                "category",
+                "jpql"
+              ],
+              "query": [
+                {
+                  "key": "categoryName",
+                  "value": "{{searchCategoryName}}"
+                },
+                {
+                  "key": "minMealPrice",
+                  "value": "{{minMealPrice}}"
+                },
+                {
+                  "key": "maxMealPrice",
+                  "value": "{{maxMealPrice}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Restaurants By Category (Native)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/restaurants/search/category/native?categoryName={{searchCategoryName}}&minMealPrice={{minMealPrice}}&maxMealPrice={{maxMealPrice}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "restaurants",
+                "search",
+                "category",
+                "native"
+              ],
+              "query": [
+                {
+                  "key": "categoryName",
+                  "value": "{{searchCategoryName}}"
+                },
+                {
+                  "key": "minMealPrice",
+                  "value": "{{minMealPrice}}"
+                },
+                {
+                  "key": "maxMealPrice",
+                  "value": "{{maxMealPrice}}"
+                }
+              ]
+            }
+          }
+        },
+        {
           "name": "Get Restaurant By Id",
           "request": {
             "method": "GET",
@@ -353,6 +417,39 @@
               ],
               "path": [
                 "meals"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Meals With Pagination",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/meals?page={{page}}&size={{size}}&sortBy={{sortBy}}&ascending={{ascending}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "meals"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "{{page}}"
+                },
+                {
+                  "key": "size",
+                  "value": "{{size}}"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "{{sortBy}}"
+                },
+                {
+                  "key": "ascending",
+                  "value": "{{ascending}}"
+                }
               ]
             }
           }
@@ -638,6 +735,34 @@
     {
       "key": "orderId",
       "value": "1"
+    },
+    {
+      "key": "searchCategoryName",
+      "value": "Burgers"
+    },
+    {
+      "key": "minMealPrice",
+      "value": "12.00"
+    },
+    {
+      "key": "maxMealPrice",
+      "value": "14.00"
+    },
+    {
+      "key": "page",
+      "value": "0"
+    },
+    {
+      "key": "size",
+      "value": "3"
+    },
+    {
+      "key": "sortBy",
+      "value": "id"
+    },
+    {
+      "key": "ascending",
+      "value": "true"
     }
   ]
 }

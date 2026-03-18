@@ -2,8 +2,8 @@ package com.order.tracker.service;
 
 import com.order.tracker.dto.request.MealRequest;
 import com.order.tracker.dto.response.MealResponse;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface MealService {
 
@@ -11,7 +11,7 @@ public interface MealService {
 
     MealResponse getById(Long id);
 
-    List<MealResponse> getAll();
+    Page<MealResponse> getAll(Pageable pageable);
 
     MealResponse update(Long id, MealRequest request);
 

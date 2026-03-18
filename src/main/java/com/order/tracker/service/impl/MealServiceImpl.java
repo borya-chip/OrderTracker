@@ -1,5 +1,6 @@
 package com.order.tracker.service.impl;
 
+import com.order.tracker.cache.CacheManager;
 import com.order.tracker.domain.Category;
 import com.order.tracker.domain.Meal;
 import com.order.tracker.domain.Restaurant;
@@ -12,12 +13,12 @@ import com.order.tracker.repository.RestaurantRepository;
 import com.order.tracker.service.MealService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -28,13 +29,16 @@ public class MealServiceImpl implements MealService {
     private final CategoryRepository categoryRepository;
     private final RestaurantRepository restaurantRepository;
     private final MealMapper mealMapper;
+    private final CacheManager cacheManager;
 
     @Override
     @Transactional
     public MealResponse create(final MealRequest request) {
         Meal meal = new Meal();
         apply(meal, request);
-        return mealMapper.toResponse(mealRepository.save(meal));
+        Meal saved = mealRepository.save(meal);
+        invalidateSearchCache();
+        return mealMapper.toResponse(saved);
     }
 
     @Override
@@ -43,10 +47,9 @@ public class MealServiceImpl implements MealService {
     }
 
     @Override
-    public List<MealResponse> getAll() {
-        return mealRepository.findAll().stream()
-                .map(mealMapper::toResponse)
-                .toList();
+    public Page<MealResponse> getAll(final Pageable pageable) {
+        return mealRepository.findAll(pageable)
+                .map(mealMapper::toResponse);
     }
 
     @Override
@@ -54,7 +57,9 @@ public class MealServiceImpl implements MealService {
     public MealResponse update(final Long id, final MealRequest request) {
         Meal meal = findMeal(id);
         apply(meal, request);
-        return mealMapper.toResponse(mealRepository.save(meal));
+        Meal saved = mealRepository.save(meal);
+        invalidateSearchCache();
+        return mealMapper.toResponse(saved);
     }
 
     @Override
@@ -66,6 +71,7 @@ public class MealServiceImpl implements MealService {
         try {
             mealRepository.deleteById(id);
             mealRepository.flush();
+            invalidateSearchCache();
         } catch (DataIntegrityViolationException ex) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
@@ -94,5 +100,9 @@ public class MealServiceImpl implements MealService {
         meal.setCookingTime(request.getCookingTime());
         meal.setCategory(findCategory(request.getCategoryId()));
         meal.setRestaurant(findRestaurant(request.getRestaurantId()));
+    }
+
+    private void invalidateSearchCache() {
+        cacheManager.invalidate(Restaurant.class, Meal.class, Category.class);
     }
 }

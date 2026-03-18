@@ -1,6 +1,9 @@
 package com.order.tracker.service.impl;
 
+import com.order.tracker.cache.CacheManager;
 import com.order.tracker.domain.Category;
+import com.order.tracker.domain.Meal;
+import com.order.tracker.domain.Restaurant;
 import com.order.tracker.dto.request.CategoryRequest;
 import com.order.tracker.dto.response.CategoryResponse;
 import com.order.tracker.mapper.CategoryMapper;
@@ -21,13 +24,16 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
+    private final CacheManager cacheManager;
 
     @Override
     @Transactional
     public CategoryResponse create(final CategoryRequest request) {
         Category category = new Category();
         apply(category, request);
-        return categoryMapper.toResponse(categoryRepository.save(category));
+        Category saved = categoryRepository.save(category);
+        invalidateSearchCache();
+        return categoryMapper.toResponse(saved);
     }
 
     @Override
@@ -47,7 +53,9 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponse update(final Long id, final CategoryRequest request) {
         Category category = findCategory(id);
         apply(category, request);
-        return categoryMapper.toResponse(categoryRepository.save(category));
+        Category saved = categoryRepository.save(category);
+        invalidateSearchCache();
+        return categoryMapper.toResponse(saved);
     }
 
     @Override
@@ -57,6 +65,7 @@ public class CategoryServiceImpl implements CategoryService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found: " + id);
         }
         categoryRepository.deleteById(id);
+        invalidateSearchCache();
     }
 
     private Category findCategory(final Long id) {
@@ -66,5 +75,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     private void apply(final Category category, final CategoryRequest request) {
         category.setName(request.getName());
+    }
+
+    private void invalidateSearchCache() {
+        cacheManager.invalidate(Restaurant.class, Meal.class, Category.class);
     }
 }
