@@ -54,6 +54,11 @@ public class ServiceLoggingAspect {
             }
 
             return result;
+        } catch (RuntimeException | Error exception) {
+            if (stopWatch.isRunning()) {
+                stopWatch.stop();
+            }
+            throw exception;
         } catch (Throwable throwable) {
             if (stopWatch.isRunning()) {
                 stopWatch.stop();
@@ -62,7 +67,7 @@ public class ServiceLoggingAspect {
                     fullMethodName,
                     stopWatch.getTotalTimeMillis(),
                     throwable);
-            throw throwable;
+            throw new IllegalStateException("Unexpected exception while executing " + fullMethodName, throwable);
         }
     }
 }
