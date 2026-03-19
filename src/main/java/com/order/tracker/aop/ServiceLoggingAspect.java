@@ -55,19 +55,22 @@ public class ServiceLoggingAspect {
 
             return result;
         } catch (RuntimeException | Error exception) {
-            if (stopWatch.isRunning()) {
-                stopWatch.stop();
-            }
+            logFailure(logger, stopWatch, fullMethodName, exception);
             throw exception;
         } catch (Throwable throwable) {
-            if (stopWatch.isRunning()) {
-                stopWatch.stop();
-            }
-            logger.error("Method {} failed in {} ms",
-                    fullMethodName,
-                    stopWatch.getTotalTimeMillis(),
-                    throwable);
+            logFailure(logger, stopWatch, fullMethodName, throwable);
             throw new IllegalStateException("Unexpected exception while executing " + fullMethodName, throwable);
         }
+    }
+
+    private void logFailure(
+            final Logger logger,
+            final StopWatch stopWatch,
+            final String fullMethodName,
+            final Throwable throwable) {
+        if (stopWatch.isRunning()) {
+            stopWatch.stop();
+        }
+        logger.error("Method {} failed in {} ms", fullMethodName, stopWatch.getTotalTimeMillis(), throwable);
     }
 }
