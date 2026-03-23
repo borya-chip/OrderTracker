@@ -3,14 +3,13 @@ package com.order.tracker.service.impl;
 import com.order.tracker.domain.Customer;
 import com.order.tracker.dto.request.CustomerRequest;
 import com.order.tracker.dto.response.CustomerResponse;
+import com.order.tracker.exception.ResourceNotFoundException;
 import com.order.tracker.mapper.CustomerMapper;
 import com.order.tracker.repository.CustomerRepository;
 import com.order.tracker.service.CustomerService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -54,14 +53,14 @@ public class CustomerServiceImpl implements CustomerService {
     @Transactional
     public void delete(final Long id) {
         if (!customerRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found: " + id);
+            throw new ResourceNotFoundException("Customer not found: " + id);
         }
         customerRepository.deleteById(id);
     }
 
     private Customer findCustomer(final Long id) {
         return customerRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found: " + id));
     }
 
     private void apply(final Customer customer, final CustomerRequest request) {

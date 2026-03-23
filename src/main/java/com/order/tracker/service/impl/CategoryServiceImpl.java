@@ -6,14 +6,13 @@ import com.order.tracker.domain.Meal;
 import com.order.tracker.domain.Restaurant;
 import com.order.tracker.dto.request.CategoryRequest;
 import com.order.tracker.dto.response.CategoryResponse;
+import com.order.tracker.exception.ResourceNotFoundException;
 import com.order.tracker.mapper.CategoryMapper;
 import com.order.tracker.repository.CategoryRepository;
 import com.order.tracker.service.CategoryService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -62,7 +61,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public void delete(final Long id) {
         if (!categoryRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found: " + id);
+            throw new ResourceNotFoundException("Category not found: " + id);
         }
         categoryRepository.deleteById(id);
         invalidateSearchCache();
@@ -70,7 +69,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     private Category findCategory(final Long id) {
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + id));
     }
 
     private void apply(final Category category, final CategoryRequest request) {

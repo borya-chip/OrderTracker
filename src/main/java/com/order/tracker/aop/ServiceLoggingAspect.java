@@ -1,5 +1,7 @@
 package com.order.tracker.aop;
 
+import com.order.tracker.exception.ApiException;
+import com.order.tracker.exception.LoggingException;
 import java.util.Arrays;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -16,6 +18,9 @@ public class ServiceLoggingAspect {
 
     private static final int SLOW_THRESHOLD_MS = 500;
     private static final int VERY_SLOW_THRESHOLD_MS = 1000;
+    private static final String ERROR_EXECUTING_METHOD = "Error executing method";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServiceLoggingAspect.class);
 
     @Pointcut("within(@org.springframework.stereotype.Service *)")
     public void serviceMethods() {
@@ -23,54 +28,49 @@ public class ServiceLoggingAspect {
 
     @Around("serviceMethods()")
     public Object logExecutionTime(final ProceedingJoinPoint joinPoint) throws Throwable {
-        Logger logger = LoggerFactory.getLogger(joinPoint.getTarget().getClass());
         String className = joinPoint.getTarget().getClass().getSimpleName();
         String methodName = joinPoint.getSignature().getName();
         String fullMethodName = className + "." + methodName;
 
         StopWatch stopWatch = new StopWatch(fullMethodName);
-        stopWatch.start(fullMethodName);
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Executing method: {} with arguments: {}",
-                    fullMethodName,
-                    Arrays.toString(joinPoint.getArgs()));
-        }
 
         try {
+            stopWatch.start(fullMethodName);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Executing method: {} with arguments: {}",
+                        fullMethodName,
+                        Arrays.toString(joinPoint.getArgs()));
+            }
+
             Object result = joinPoint.proceed();
-            stopWatch.stop();
-            long executionTime = stopWatch.getTotalTimeMillis();
+            long executionTime = stopAndGetExecutionTime(stopWatch);
 
             if (executionTime > VERY_SLOW_THRESHOLD_MS) {
-                logger.warn("Method {} completed in {} ms (exceeds {} ms threshold)",
+                LOGGER.warn("Method {} finished in {} ms (exceeds {} ms threshold)",
                         fullMethodName,
                         executionTime,
                         VERY_SLOW_THRESHOLD_MS);
             } else if (executionTime > SLOW_THRESHOLD_MS) {
-                logger.info("Method {} completed in {} ms", fullMethodName, executionTime);
+                LOGGER.info("Method {} finished in {} ms", fullMethodName, executionTime);
             } else {
-                logger.debug("Method {} completed in {} ms", fullMethodName, executionTime);
+                LOGGER.debug("Method {} finished in {} ms", fullMethodName, executionTime);
             }
-
             return result;
-        } catch (RuntimeException | Error exception) {
-            logFailure(logger, stopWatch, fullMethodName, exception);
-            throw exception;
-        } catch (Throwable throwable) {
-            logFailure(logger, stopWatch, fullMethodName, throwable);
-            throw new IllegalStateException("Unexpected exception while executing " + fullMethodName, throwable);
+        } catch (ApiException apiException) {
+            stopAndGetExecutionTime(stopWatch);
+            throw apiException;
+        } catch (Exception exception) {
+            long executionTime = stopAndGetExecutionTime(stopWatch);
+            String message = "%s %s after %d ms"
+                    .formatted(ERROR_EXECUTING_METHOD, fullMethodName, executionTime);
+            throw new LoggingException(message, exception);
         }
     }
 
-    private void logFailure(
-            final Logger logger,
-            final StopWatch stopWatch,
-            final String fullMethodName,
-            final Throwable throwable) {
+    private long stopAndGetExecutionTime(final StopWatch stopWatch) {
         if (stopWatch.isRunning()) {
             stopWatch.stop();
         }
-        logger.error("Method {} failed in {} ms", fullMethodName, stopWatch.getTotalTimeMillis(), throwable);
+        return stopWatch.getTotalTimeMillis();
     }
 }

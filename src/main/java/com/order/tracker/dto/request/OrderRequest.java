@@ -8,6 +8,7 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,8 +31,9 @@ public class OrderRequest {
     private String description;
 
     @NotNull(message = "Customer id is required")
+    @Positive(message = "Customer id must be positive")
     private Long customerId;
 
     @NotEmpty(message = "At least one meal id is required")
-    private Set<Long> mealIds;
+    private Set<@Positive(message = "Meal id must be positive") Long> mealIds;
 }

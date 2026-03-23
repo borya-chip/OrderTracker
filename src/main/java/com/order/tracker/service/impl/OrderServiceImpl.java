@@ -8,6 +8,8 @@ import com.order.tracker.domain.Restaurant;
 import com.order.tracker.dto.request.OrderRequest;
 import com.order.tracker.dto.request.OrderTransactionRequest;
 import com.order.tracker.dto.response.OrderResponse;
+import com.order.tracker.exception.BadRequestException;
+import com.order.tracker.exception.ResourceNotFoundException;
 import com.order.tracker.mapper.OrderMapper;
 import com.order.tracker.repository.CategoryRepository;
 import com.order.tracker.repository.CustomerRepository;
@@ -16,11 +18,9 @@ import com.order.tracker.repository.OrderRepository;
 import com.order.tracker.repository.RestaurantRepository;
 import com.order.tracker.service.OrderService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -57,7 +57,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public OrderResponse getById(final Long id) {
         Order order = orderRepository.findByIdWithDetails(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + id));
         return orderMapper.toResponse(order);
     }
 
@@ -69,7 +69,7 @@ public class OrderServiceImpl implements OrderService {
             final boolean optimizedFetch) {
 
         if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "startDate must be <= endDate");
+            throw new BadRequestException("startDate must be <= endDate");
         }
 
         List<Order> orders;
@@ -103,7 +103,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderResponse update(final Long id, final OrderRequest request) {
         Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found: " + id));
         apply(order, request);
         return orderMapper.toResponse(orderRepository.save(order));
     }
@@ -112,7 +112,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public void delete(final Long id) {
         if (!orderRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found: " + id);
+            throw new ResourceNotFoundException("Order not found: " + id);
         }
         orderRepository.deleteById(id);
     }
@@ -139,15 +139,13 @@ public class OrderServiceImpl implements OrderService {
 
     private Customer findCustomer(final Long customerId) {
         return customerRepository.findById(customerId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Customer not found: " + customerId));
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found: " + customerId));
     }
 
     private Set<Meal> findMeals(final Set<Long> mealIds) {
         List<Meal> meals = mealRepository.findAllById(mealIds);
         if (meals.size() != mealIds.size()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "One or more meals were not found");
+            throw new ResourceNotFoundException("One or more meals were not found");
         }
         return meals.stream().collect(java.util.stream.Collectors.toCollection(LinkedHashSet::new));
     }
@@ -189,9 +187,7 @@ public class OrderServiceImpl implements OrderService {
                 new LinkedHashSet<>()));
 
         if (failAfterMealsSave) {
-            throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Forced error after meals save");
+            throw new IllegalStateException("Forced error after meals save");
         }
 
         Order order = new Order();
@@ -205,26 +201,23 @@ public class OrderServiceImpl implements OrderService {
 
     private void validatePositiveAmount(final BigDecimal amount) {
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Order amount must be > 0");
+            throw new BadRequestException("Order amount must be > 0");
         }
     }
 
     private Customer getCustomer(final Long customerId) {
         return customerRepository.findById(customerId)
-                .orElseThrow(
-                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found: " + customerId));
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found: " + customerId));
     }
 
     private Category getCategory(final Long categoryId) {
         return categoryRepository.findById(categoryId)
-                .orElseThrow(
-                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found: " + categoryId));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + categoryId));
     }
 
     private Restaurant getRestaurant(final Long restaurantId) {
         return restaurantRepository.findById(restaurantId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND, "Restaurant not found: " + restaurantId));
+                .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found: " + restaurantId));
     }
 
     private String normalizeTransactionDescription(final String description) {
@@ -233,7 +226,7 @@ public class OrderServiceImpl implements OrderService {
         }
         String normalized = description.trim();
         if (normalized.length() > 255) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Description length must be <= 255");
+            throw new BadRequestException("Description length must be <= 255");
         }
         return normalized;
     }

@@ -7,16 +7,15 @@ import com.order.tracker.domain.Meal;
 import com.order.tracker.domain.Restaurant;
 import com.order.tracker.dto.request.RestaurantRequest;
 import com.order.tracker.dto.response.RestaurantResponse;
+import com.order.tracker.exception.ResourceNotFoundException;
 import com.order.tracker.mapper.RestaurantMapper;
 import com.order.tracker.repository.RestaurantRepository;
 import com.order.tracker.service.RestaurantService;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Transactional(readOnly = true)
@@ -93,7 +92,7 @@ public class RestaurantServiceImpl implements RestaurantService {
     @Transactional
     public void delete(final Long id) {
         if (!restaurantRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Restaurant not found: " + id);
+            throw new ResourceNotFoundException("Restaurant not found: " + id);
         }
         restaurantRepository.deleteById(id);
         invalidateSearchCache();
@@ -101,7 +100,7 @@ public class RestaurantServiceImpl implements RestaurantService {
 
     private Restaurant findRestaurant(final Long id) {
         return restaurantRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Restaurant not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found: " + id));
     }
 
     private void apply(final Restaurant restaurant, final RestaurantRequest request) {

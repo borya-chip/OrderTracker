@@ -6,6 +6,8 @@ import com.order.tracker.domain.Meal;
 import com.order.tracker.domain.Restaurant;
 import com.order.tracker.dto.request.MealRequest;
 import com.order.tracker.dto.response.MealResponse;
+import com.order.tracker.exception.ConflictException;
+import com.order.tracker.exception.ResourceNotFoundException;
 import com.order.tracker.mapper.MealMapper;
 import com.order.tracker.repository.CategoryRepository;
 import com.order.tracker.repository.MealRepository;
@@ -15,10 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @Transactional(readOnly = true)
@@ -66,32 +66,31 @@ public class MealServiceImpl implements MealService {
     @Transactional
     public void delete(final Long id) {
         if (!mealRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Meal not found: " + id);
+            throw new ResourceNotFoundException("Meal not found: " + id);
         }
         try {
             mealRepository.deleteById(id);
             mealRepository.flush();
             invalidateSearchCache();
         } catch (DataIntegrityViolationException ex) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
+            throw new ConflictException(
                     "Meal is used in existing orders and cannot be deleted");
         }
     }
 
     private Meal findMeal(final Long id) {
         return mealRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Meal not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Meal not found: " + id));
     }
 
     private Category findCategory(final Long id) {
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found: " + id));
     }
 
     private Restaurant findRestaurant(final Long id) {
         return restaurantRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Restaurant not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Restaurant not found: " + id));
     }
 
     private void apply(final Meal meal, final MealRequest request) {

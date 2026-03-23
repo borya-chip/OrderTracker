@@ -29,8 +29,10 @@ public class MealRequest {
     private Integer cookingTime;
 
     @NotNull(message = "Category id is required")
+    @Positive(message = "Category id must be positive")
     private Long categoryId;
 
     @NotNull(message = "Restaurant id is required")
+    @Positive(message = "Restaurant id must be positive")
     private Long restaurantId;
 }
