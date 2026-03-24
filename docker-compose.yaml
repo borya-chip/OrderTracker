@@ -9,26 +9,32 @@ services:
     ports:
       - ${POSTGRES_PORT}:5432
     volumes:
-      - order-tracker-data:/var/lib/postgresql/data
+      - order-tracker-data:/var/lib/postgresql
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
     restart: unless-stopped
     networks:
       - order-tracker-net
+
   order-tracker:
     container_name: order-tracker-app
     build:
       context: .
       dockerfile: Dockerfile
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://pg:5432/${POSTGRES_DB}
-      - DB_USERNAME=${POSTGRES_USER}
-      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_URL=jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
     ports:
-      - ${ORDER_TRACKER_PORT:-8080}:8080
+      - ${ORDER_TRACKER_PORT}:8080
+    volumes:
+      - ./logs:/app/logs
     depends_on:
       pg:
         condition: service_healthy
