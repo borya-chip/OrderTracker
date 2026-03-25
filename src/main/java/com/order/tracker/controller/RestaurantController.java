@@ -1,5 +1,6 @@
 package com.order.tracker.controller;
 
+import com.order.tracker.controller.api.RestaurantControllerApi;
 import com.order.tracker.dto.request.RestaurantRequest;
 import com.order.tracker.dto.response.RestaurantResponse;
 import com.order.tracker.service.RestaurantService;
@@ -15,33 +16,31 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/restaurants")
-public class RestaurantController {
+public class RestaurantController implements RestaurantControllerApi {
 
     private final RestaurantService restaurantService;
 
-    @PostMapping
+    @PostMapping("/api/v1/restaurants")
     public ResponseEntity<RestaurantResponse> create(@Valid @RequestBody final RestaurantRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(restaurantService.create(request));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/api/v1/restaurants/{id}")
     public ResponseEntity<RestaurantResponse> getById(@PathVariable final Long id) {
         return ResponseEntity.ok(restaurantService.getById(id));
     }
 
-    @GetMapping
+    @GetMapping("/api/v1/restaurants")
     public ResponseEntity<List<RestaurantResponse>> getAll() {
         return ResponseEntity.ok(restaurantService.getAll());
     }
 
-    @GetMapping("/search/category/jpql")
+    @GetMapping("/api/v1/restaurants/search/category/jpql")
     public ResponseEntity<List<RestaurantResponse>> searchRestaurantsWithJpql(
             @RequestParam("categoryName") final String categoryName,
             @RequestParam("minMealPrice") final BigDecimal minMealPrice,
@@ -52,7 +51,7 @@ public class RestaurantController {
                 maxMealPrice));
     }
 
-    @GetMapping("/search/category/native")
+    @GetMapping("/api/v1/restaurants/search/category/native")
     public ResponseEntity<List<RestaurantResponse>> searchRestaurantsWithNative(
             @RequestParam("categoryName") final String categoryName,
             @RequestParam("minMealPrice") final BigDecimal minMealPrice,
@@ -63,14 +62,14 @@ public class RestaurantController {
                 maxMealPrice));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/api/v1/restaurants/{id}")
     public ResponseEntity<RestaurantResponse> update(
             @PathVariable final Long id,
             @Valid @RequestBody final RestaurantRequest request) {
         return ResponseEntity.ok(restaurantService.update(id, request));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/api/v1/restaurants/{id}")
     public ResponseEntity<Void> delete(@PathVariable final Long id) {
         restaurantService.delete(id);
         return ResponseEntity.noContent().build();

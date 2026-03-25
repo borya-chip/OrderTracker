@@ -1,5 +1,6 @@
 package com.order.tracker.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Request body for creating a restaurant.")
 public class RestaurantRequest {
 
     @NotBlank(message = "Restaurant name is required")

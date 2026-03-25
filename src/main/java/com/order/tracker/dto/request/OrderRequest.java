@@ -1,5 +1,6 @@
 package com.order.tracker.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -17,6 +18,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Request body for creating an order.")
 public class OrderRequest {
 
     @NotNull(message = "Amount is required")

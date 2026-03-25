@@ -1,5 +1,6 @@
 package com.order.tracker.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
 
 import jakarta.validation.constraints.DecimalMin;
@@ -14,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Request body for creating a meal.")
 public class MealRequest {
 
     @NotBlank(message = "Meal name is required")

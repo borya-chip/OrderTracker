@@ -7,6 +7,8 @@ import com.order.tracker.domain.Meal;
 import com.order.tracker.domain.Restaurant;
 import com.order.tracker.dto.request.RestaurantRequest;
 import com.order.tracker.dto.response.RestaurantResponse;
+import com.order.tracker.exception.ConflictException;
+import com.order.tracker.exception.DuplicateResourceException;
 import com.order.tracker.exception.ResourceNotFoundException;
 import com.order.tracker.mapper.RestaurantMapper;
 import com.order.tracker.repository.RestaurantRepository;
@@ -14,6 +16,7 @@ import com.order.tracker.service.RestaurantService;
 import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +34,7 @@ public class RestaurantServiceImpl implements RestaurantService {
     public RestaurantResponse create(final RestaurantRequest request) {
         Restaurant restaurant = new Restaurant();
         apply(restaurant, request);
-        Restaurant saved = restaurantRepository.save(restaurant);
+        Restaurant saved = saveRestaurant(restaurant);
         invalidateSearchCache();
         return restaurantMapper.toResponse(saved);
     }
@@ -83,7 +86,7 @@ public class RestaurantServiceImpl implements RestaurantService {
     public RestaurantResponse update(final Long id, final RestaurantRequest request) {
         Restaurant restaurant = findRestaurant(id);
         apply(restaurant, request);
-        Restaurant saved = restaurantRepository.save(restaurant);
+        Restaurant saved = saveRestaurant(restaurant);
         invalidateSearchCache();
         return restaurantMapper.toResponse(saved);
     }
@@ -94,8 +97,14 @@ public class RestaurantServiceImpl implements RestaurantService {
         if (!restaurantRepository.existsById(id)) {
             throw new ResourceNotFoundException("Restaurant not found: " + id);
         }
-        restaurantRepository.deleteById(id);
-        invalidateSearchCache();
+        try {
+            restaurantRepository.deleteById(id);
+            restaurantRepository.flush();
+            invalidateSearchCache();
+        } catch (DataIntegrityViolationException ex) {
+            throw new ConflictException(
+                    "Restaurant has related meals and cannot be deleted");
+        }
     }
 
     private Restaurant findRestaurant(final Long id) {
@@ -110,6 +119,15 @@ public class RestaurantServiceImpl implements RestaurantService {
         restaurant.setAddress(request.getAddress());
         restaurant.setPhone(request.getPhone());
         restaurant.setActive(request.getActive() == null ? Boolean.TRUE : request.getActive());
+    }
+
+    private Restaurant saveRestaurant(final Restaurant restaurant) {
+        try {
+            return restaurantRepository.saveAndFlush(restaurant);
+        } catch (DataIntegrityViolationException ex) {
+            throw new DuplicateResourceException(
+                    "Restaurant with name '%s' already exists".formatted(restaurant.getName()));
+        }
     }
 
     private CacheKey buildCacheKey(final String methodName, final Object... args) {

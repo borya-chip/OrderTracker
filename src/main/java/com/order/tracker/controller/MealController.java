@@ -1,5 +1,6 @@
 package com.order.tracker.controller;
 
+import com.order.tracker.controller.api.MealControllerApi;
 import com.order.tracker.dto.request.MealRequest;
 import com.order.tracker.dto.response.MealResponse;
 import com.order.tracker.service.MealService;
@@ -17,28 +18,26 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/meals")
-public class MealController {
+public class MealController implements MealControllerApi {
 
     private final MealService mealService;
 
-    @PostMapping
+    @PostMapping("/api/v1/meals")
     public ResponseEntity<MealResponse> create(@Valid @RequestBody final MealRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(mealService.create(request));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/api/v1/meals/{id}")
     public ResponseEntity<MealResponse> getById(@PathVariable final Long id) {
         return ResponseEntity.ok(mealService.getById(id));
     }
 
-    @GetMapping
+    @GetMapping("/api/v1/meals")
     public ResponseEntity<Page<MealResponse>> getAll(
             @RequestParam(defaultValue = "0") final int page,
             @RequestParam(defaultValue = "3") final int size,
@@ -49,14 +48,14 @@ public class MealController {
         return ResponseEntity.ok(mealService.getAll(pageable));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/api/v1/meals/{id}")
     public ResponseEntity<MealResponse> update(
             @PathVariable final Long id,
             @Valid @RequestBody final MealRequest request) {
         return ResponseEntity.ok(mealService.update(id, request));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/api/v1/meals/{id}")
     public ResponseEntity<Void> delete(@PathVariable final Long id) {
         mealService.delete(id);
         return ResponseEntity.noContent().build();
