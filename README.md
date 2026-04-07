@@ -67,3 +67,36 @@ docker compose down -v
 - ротация логов: при достижении `40KB` текущий лог архивируется в `logs/archive/*.log.gz`, запись продолжается в новом файле
 
 Sonar https://sonarcloud.io/summary/overall?id=borya-chip_OrderTracker&branch=main
+
+## SonarQube Cloud
+
+[Sonar Analysis](https://sonarcloud.io/summary/overall?id=borya-chip_OrderTracker&branch=main)
+
+Для передачи покрытия тестов в SonarQube Cloud проект теперь генерирует JaCoCo XML-отчет в стандартный путь `target/site/jacoco/jacoco.xml`.
+
+GitHub Actions workflow находится в `.github/workflows/ci.yml` и выполняет:
+
+- сборку
+- линтинг через `checkstyle`
+- unit-тесты
+- генерацию JaCoCo coverage report
+- отправку анализа в SonarQube Cloud
+
+Для работы workflow в GitHub repository settings нужно задать:
+
+- secret `SONAR_TOKEN`
+- variable `SONAR_ORGANIZATION`, если organization key в SonarQube Cloud отличается от owner репозитория
+- variable `SONAR_PROJECT_KEY`, если нужно переопределить текущее значение по умолчанию `borya-chip_OrderTracker`
+
+Локальный запуск с покрытием:
+
+```bash
+./mvnw -Pcoverage verify
+```
+
+Отправка анализа вместе с покрытием в SonarQube Cloud:
+
+```bash
+./mvnw -Pcoverage verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+  -Dsonar.token=$SONAR_TOKEN
+```
