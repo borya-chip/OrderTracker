@@ -107,11 +107,12 @@ class MealServiceImplTest {
 
     @Test
     void createShouldThrowWhenCategoryIsMissing() {
+        MealRequest request = new MealRequest("Soup", new BigDecimal("12.50"), 20, 2L, 3L);
         when(categoryRepository.findById(2L)).thenReturn(Optional.empty());
 
         assertThrows(
                 ResourceNotFoundException.class,
-                () -> service.create(new MealRequest("Soup", new BigDecimal("12.50"), 20, 2L, 3L)));
+                () -> service.create(request));
 
         verify(mealRepository, never()).save(any(Meal.class));
     }

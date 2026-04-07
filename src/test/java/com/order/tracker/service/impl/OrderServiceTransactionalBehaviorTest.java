@@ -59,10 +59,9 @@ class OrderServiceTransactionalBehaviorTest {
     @Test
     void createOrdersBulkTxShouldRollbackWholeBatchWhenOneItemFails() {
         TestData testData = seedData();
+        List<OrderRequest> requests = List.of(validRequest(testData), invalidRequest(testData));
 
-        assertThrows(ResourceNotFoundException.class, () -> orderService.createOrdersBulkTx(List.of(
-                validRequest(testData),
-                invalidRequest(testData))));
+        assertThrows(ResourceNotFoundException.class, () -> orderService.createOrdersBulkTx(requests));
 
         assertEquals(0, orderRepository.count());
     }
@@ -70,10 +69,9 @@ class OrderServiceTransactionalBehaviorTest {
     @Test
     void createOrdersBulkNoTxShouldKeepPreviouslySavedOrdersWhenOneItemFails() {
         TestData testData = seedData();
+        List<OrderRequest> requests = List.of(validRequest(testData), invalidRequest(testData));
 
-        assertThrows(ResourceNotFoundException.class, () -> orderService.createOrdersBulkNoTx(List.of(
-                validRequest(testData),
-                invalidRequest(testData))));
+        assertThrows(ResourceNotFoundException.class, () -> orderService.createOrdersBulkNoTx(requests));
 
         assertEquals(1, orderRepository.count());
     }

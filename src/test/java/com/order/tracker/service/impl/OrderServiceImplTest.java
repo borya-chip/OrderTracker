@@ -106,23 +106,30 @@ class OrderServiceImplTest {
 
     @Test
     void getOrdersByDateRangeShouldRejectMissingDates() {
+        LocalDate endDate = LocalDate.of(2026, 4, 1);
+
         assertThrows(
                 BadRequestException.class,
-                () -> service.getOrdersByDateRange(null, LocalDate.of(2026, 4, 1)));
+                () -> service.getOrdersByDateRange(null, endDate));
     }
 
     @Test
     void getOrdersByDateRangeShouldRejectMissingEndDate() {
+        LocalDate startDate = LocalDate.of(2026, 4, 1);
+
         assertThrows(
                 BadRequestException.class,
-                () -> service.getOrdersByDateRange(LocalDate.of(2026, 4, 1), null));
+                () -> service.getOrdersByDateRange(startDate, null));
     }
 
     @Test
     void getOrdersByDateRangeShouldRejectReversedDates() {
+        LocalDate startDate = LocalDate.of(2026, 4, 5);
+        LocalDate endDate = LocalDate.of(2026, 4, 1);
+
         assertThrows(
                 BadRequestException.class,
-                () -> service.getOrdersByDateRange(LocalDate.of(2026, 4, 5), LocalDate.of(2026, 4, 1)));
+                () -> service.getOrdersByDateRange(startDate, endDate));
     }
 
     @Test
@@ -148,12 +155,13 @@ class OrderServiceImplTest {
 
     @Test
     void createOrderShouldThrowWhenSomeMealsAreMissing() {
+        OrderRequest request = request("Lunch", "18.50", 1L, Set.of(10L, 11L));
         when(customerRepository.findById(1L)).thenReturn(Optional.of(customer(1L)));
         when(mealRepository.findAllById(Set.of(10L, 11L))).thenReturn(List.of(meal(10L)));
 
         assertThrows(
                 ResourceNotFoundException.class,
-                () -> service.createOrder(request("Lunch", "18.50", 1L, Set.of(10L, 11L))));
+                () -> service.createOrder(request));
 
         verify(orderRepository, never()).save(any(Order.class));
     }
@@ -185,9 +193,11 @@ class OrderServiceImplTest {
 
     @Test
     void createOrdersBulkTxShouldRejectEmptyRequest() {
+        List<OrderRequest> requests = List.of();
+
         BadRequestException exception = assertThrows(
                 BadRequestException.class,
-                () -> service.createOrdersBulkTx(List.of()));
+                () -> service.createOrdersBulkTx(requests));
 
         assertTrue(exception.getMessage().contains("at least one item"));
         verify(orderRepository, never()).save(any(Order.class));
