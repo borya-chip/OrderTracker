@@ -118,6 +118,17 @@ class MealServiceImplTest {
     }
 
     @Test
+    void createShouldThrowWhenRestaurantIsMissing() {
+        MealRequest request = new MealRequest("Soup", new BigDecimal("12.50"), 20, 2L, 3L);
+        when(categoryRepository.findById(2L)).thenReturn(Optional.of(category(2L)));
+        when(restaurantRepository.findById(3L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> service.create(request));
+
+        verify(mealRepository, never()).save(any(Meal.class));
+    }
+
+    @Test
     void updateShouldSaveUpdatedMealAndInvalidateCache() {
         Meal existing = meal(5L, category(2L), restaurant(3L));
         when(mealRepository.findById(5L)).thenReturn(Optional.of(existing));
@@ -142,6 +153,13 @@ class MealServiceImplTest {
         verify(mealRepository).deleteById(7L);
         verify(mealRepository).flush();
         verify(cacheManager).invalidate(Restaurant.class, Meal.class, Category.class);
+    }
+
+    @Test
+    void deleteShouldThrowWhenMealIsMissing() {
+        when(mealRepository.existsById(7L)).thenReturn(false);
+
+        assertThrows(ResourceNotFoundException.class, () -> service.delete(7L));
     }
 
     @Test

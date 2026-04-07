@@ -153,6 +153,17 @@ class RestaurantServiceImplTest {
     }
 
     @Test
+    void deleteShouldDeleteRestaurantAndInvalidateCache() {
+        when(restaurantRepository.existsById(7L)).thenReturn(true);
+
+        service.delete(7L);
+
+        verify(restaurantRepository).deleteById(7L);
+        verify(restaurantRepository).flush();
+        verify(cacheManager).invalidate(Restaurant.class, Meal.class, Category.class);
+    }
+
+    @Test
     void deleteShouldThrowConflictWhenRestaurantHasRelatedMeals() {
         when(restaurantRepository.existsById(7L)).thenReturn(true);
         doThrow(new DataIntegrityViolationException("fk")).when(restaurantRepository).flush();

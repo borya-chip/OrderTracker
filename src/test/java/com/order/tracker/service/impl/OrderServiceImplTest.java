@@ -167,6 +167,29 @@ class OrderServiceImplTest {
     }
 
     @Test
+    void createOrderShouldThrowWhenCustomerIsMissing() {
+        OrderRequest request = request("Lunch", "18.50", 1L, Set.of(10L));
+        when(customerRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> service.createOrder(request));
+
+        verify(orderRepository, never()).save(any(Order.class));
+    }
+
+    @Test
+    void createOrderShouldRejectEmptyMealIds() {
+        OrderRequest request = request("Lunch", "18.50", 1L, Set.of());
+        when(customerRepository.findById(1L)).thenReturn(Optional.of(customer(1L)));
+
+        BadRequestException exception = assertThrows(
+                BadRequestException.class,
+                () -> service.createOrder(request));
+
+        assertTrue(exception.getMessage().contains("at least one meal"));
+        verify(orderRepository, never()).save(any(Order.class));
+    }
+
+    @Test
     void createOrdersBulkTxShouldCreateAllOrders() {
         Customer customer = customer(1L);
         Meal meal = meal(10L);
