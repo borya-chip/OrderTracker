@@ -1,25 +1,26 @@
 package com.order.tracker.service;
 
 import com.order.tracker.dto.request.OrderRequest;
-import com.order.tracker.dto.request.OrderTransactionRequest;
+import com.order.tracker.dto.request.OrderUpdateRequest;
 import com.order.tracker.dto.response.OrderResponse;
-
 import java.time.LocalDate;
 import java.util.List;
 
 public interface OrderService {
 
-    OrderResponse create(OrderRequest request);
+    OrderResponse getOrderById(Long id);
 
-    OrderResponse getById(Long id);
+    List<OrderResponse> getAllOrders(boolean withEntityGraph);
 
-    List<OrderResponse> getByDateRange(LocalDate startDate, LocalDate endDate, boolean optimizedFetch);
+    List<OrderResponse> getOrdersByDateRange(LocalDate startDate, LocalDate endDate);
 
-    OrderResponse update(Long id, OrderRequest request);
+    OrderResponse createOrder(OrderRequest request);
 
-    void delete(Long id);
+    List<OrderResponse> createOrdersBulkTx(List<OrderRequest> requests);
 
-    void createOrderTransactionTx(OrderTransactionRequest request, boolean failAfterMealsSave);
+    List<OrderResponse> createOrdersBulkNoTx(List<OrderRequest> requests);
 
-    void createOrderTransactionNoTx(OrderTransactionRequest request, boolean failAfterMealsSave);
+    OrderResponse updateOrder(Long id, OrderUpdateRequest request);
+
+    void deleteOrder(Long id);
 }

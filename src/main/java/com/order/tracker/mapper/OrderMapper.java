@@ -1,12 +1,13 @@
 package com.order.tracker.mapper;
 
+import com.order.tracker.domain.Customer;
 import com.order.tracker.domain.Meal;
 import com.order.tracker.domain.Order;
+import com.order.tracker.dto.request.OrderRequest;
 import com.order.tracker.dto.response.OrderResponse;
-import org.springframework.stereotype.Component;
-
 import java.util.LinkedHashSet;
 import java.util.Set;
+import org.springframework.stereotype.Component;
 
 @Component
 public class OrderMapper {
@@ -35,5 +36,19 @@ public class OrderMapper {
                         : null,
                 mealIds,
                 mealNames);
+    }
+
+    public Order fromRequest(final OrderRequest request, final Customer customer, final Set<Meal> meals) {
+        if (request == null) {
+            return null;
+        }
+
+        Order order = new Order();
+        order.setAmount(request.getAmount());
+        order.setDate(request.getDate());
+        order.setDescription(request.getDescription());
+        order.setCustomer(customer);
+        order.setMeals(meals != null ? new LinkedHashSet<>(meals) : new LinkedHashSet<>());
+        return order;
     }
 }

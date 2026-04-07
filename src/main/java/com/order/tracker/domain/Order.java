@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -47,7 +46,7 @@ public class Order {
     @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "order_meals",
             joinColumns = @JoinColumn(name = "order_id"),

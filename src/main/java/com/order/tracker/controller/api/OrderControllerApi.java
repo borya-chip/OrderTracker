@@ -1,7 +1,7 @@
 package com.order.tracker.controller.api;
 
 import com.order.tracker.dto.request.OrderRequest;
-import com.order.tracker.dto.request.OrderTransactionRequest;
+import com.order.tracker.dto.request.OrderUpdateRequest;
 import com.order.tracker.dto.response.OrderResponse;
 import com.order.tracker.exception.response.ErrorResponse;
 import com.order.tracker.exception.response.ValidationErrorResponse;
@@ -19,9 +19,9 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -65,8 +65,8 @@ public interface OrderControllerApi {
             @RequestParam(required = false) LocalDate startDate,
             @Parameter(description = "End date filter", example = "2026-03-31")
             @RequestParam(required = false) LocalDate endDate,
-            @Parameter(description = "Whether to fetch orders using optimized query", example = "false")
-            @RequestParam(defaultValue = "false") boolean optimizedFetch
+            @Parameter(description = "Whether to fetch orders with EntityGraph", example = "false")
+            @RequestParam(required = false, defaultValue = "false") boolean withEntityGraph
     );
 
     @Operation(summary = "Create order", description = "Creates a new order.")
@@ -85,37 +85,38 @@ public interface OrderControllerApi {
                 content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/api/v1/orders")
-    ResponseEntity<OrderResponse> create(
+    ResponseEntity<OrderResponse> createOrder(
             @Parameter(description = "Order payload", required = true)
             @Valid @RequestBody OrderRequest request
     );
 
     @Operation(
-            summary = "Create order in transactional/non-transactional mode",
-            description = "Runs order creation with or without transaction and optional forced failure for demo."
+            summary = "Bulk create orders",
+            description = "Imports a list of orders in transactional or non-transactional mode."
     )
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Order transaction executed"),
+        @ApiResponse(
+                responseCode = "201",
+                description = "Orders created successfully",
+                content = @Content(array = @ArraySchema(schema = @Schema(implementation = OrderResponse.class)))),
         @ApiResponse(
                 responseCode = "400",
-                description = "Invalid request body or parameters",
+                description = "Invalid request body",
                 content = @Content(schema = @Schema(implementation = ValidationErrorResponse.class))),
         @ApiResponse(
                 responseCode = "404",
-                description = "Related entities not found",
+                description = "Customer or meals not found",
                 content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PostMapping("/api/v1/orders/transaction")
-    ResponseEntity<Void> createOrderTransaction(
-            @Parameter(description = "Order transaction payload", required = true)
-            @Valid @RequestBody OrderTransactionRequest request,
-            @Parameter(description = "Run within transaction", example = "true")
-            @RequestParam(defaultValue = "true") boolean transactional,
-            @Parameter(description = "Force failure after meals save", example = "false")
-            @RequestParam(defaultValue = "false") boolean failAfterMealsSave
+    @PostMapping("/api/v1/orders/bulk")
+    ResponseEntity<List<OrderResponse>> createOrdersBulk(
+            @Parameter(description = "List of order payloads", required = true)
+            @Valid @RequestBody List<@Valid OrderRequest> requests,
+            @Parameter(description = "Run bulk import inside a transaction", example = "true")
+            @RequestParam(defaultValue = "true") boolean transactional
     );
 
-    @Operation(summary = "Update order", description = "Updates an existing order.")
+    @Operation(summary = "Patch order", description = "Partially updates an order.")
     @ApiResponses(value = {
         @ApiResponse(
                 responseCode = "200",
@@ -130,12 +131,12 @@ public interface OrderControllerApi {
                 description = "Order, customer or meals not found",
                 content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @PutMapping("/api/v1/orders/{id}")
-    ResponseEntity<OrderResponse> update(
+    @PatchMapping("/api/v1/orders/{id}")
+    ResponseEntity<OrderResponse> updateOrder(
             @Parameter(description = "Order ID", required = true, example = "1")
             @PathVariable Long id,
-            @Parameter(description = "Order payload", required = true)
-            @Valid @RequestBody OrderRequest request
+            @Parameter(description = "Partial order payload", required = true)
+            @Valid @RequestBody OrderUpdateRequest request
     );
 
     @Operation(summary = "Delete order", description = "Deletes an order by ID.")
@@ -147,7 +148,7 @@ public interface OrderControllerApi {
                 content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @DeleteMapping("/api/v1/orders/{id}")
-    ResponseEntity<Void> delete(
+    ResponseEntity<Void> deleteOrder(
             @Parameter(description = "Order ID", required = true, example = "1")
             @PathVariable Long id
     );
