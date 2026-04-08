@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -120,6 +121,24 @@ public interface RestaurantControllerApi {
     @PostMapping("/api/v1/restaurants")
     ResponseEntity<RestaurantResponse> create(
             @Parameter(description = "Restaurant payload", required = true)
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    description = "Demo restaurant for transactional bulk import scenario.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = RestaurantRequest.class),
+                            examples = @ExampleObject(
+                                    name = "Transactional demo restaurant",
+                                    value = """
+                                            {
+                                              "name": "Transactional Demo Restaurant",
+                                              "contactEmail": "tx.demo.restaurant@example.com",
+                                              "city": "Minsk",
+                                              "address": "Main street 1",
+                                              "phone": "+375291110000",
+                                              "active": true
+                                            }
+                                            """)))
             @Valid @RequestBody RestaurantRequest request
     );
 

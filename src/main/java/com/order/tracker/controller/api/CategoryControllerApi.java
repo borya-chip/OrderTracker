@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -66,6 +67,19 @@ public interface CategoryControllerApi {
     @PostMapping("/api/v1/categories")
     ResponseEntity<CategoryResponse> create(
             @Parameter(description = "Category payload", required = true)
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    description = "Demo category for transactional bulk import scenario.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CategoryRequest.class),
+                            examples = @ExampleObject(
+                                    name = "Transactional demo category",
+                                    value = """
+                                            {
+                                              "name": "Transactional Demo Category"
+                                            }
+                                            """)))
             @Valid @RequestBody CategoryRequest request
     );
 

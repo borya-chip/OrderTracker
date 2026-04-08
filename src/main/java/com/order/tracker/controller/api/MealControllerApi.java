@@ -7,6 +7,7 @@ import com.order.tracker.exception.response.ValidationErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -79,6 +80,23 @@ public interface MealControllerApi {
     @PostMapping("/api/v1/meals")
     ResponseEntity<MealResponse> create(
             @Parameter(description = "Meal payload", required = true)
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    description = "Demo meal for transactional bulk import scenario. Replace categoryId and restaurantId with IDs created in previous steps.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MealRequest.class),
+                            examples = @ExampleObject(
+                                    name = "Transactional demo meal",
+                                    value = """
+                                            {
+                                              "name": "Transactional Demo Meal",
+                                              "price": 12.50,
+                                              "cookingTime": 20,
+                                              "categoryId": 1,
+                                              "restaurantId": 1
+                                            }
+                                            """)))
             @Valid @RequestBody MealRequest request
     );
 

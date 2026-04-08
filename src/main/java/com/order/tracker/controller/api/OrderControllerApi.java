@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -87,12 +88,36 @@ public interface OrderControllerApi {
     @PostMapping("/api/v1/orders")
     ResponseEntity<OrderResponse> createOrder(
             @Parameter(description = "Order payload", required = true)
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    description = "Single order example. Replace customerId and mealIds with existing IDs from your database.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = OrderRequest.class),
+                            examples = @ExampleObject(
+                                    name = "Single order demo",
+                                    value = """
+                                            {
+                                              "amount": 25.00,
+                                              "date": "2026-04-07T12:00:00",
+                                              "description": "Single demo order",
+                                              "customerId": 1,
+                                              "mealIds": [1]
+                                            }
+                                            """)))
             @Valid @RequestBody OrderRequest request
     );
 
     @Operation(
             summary = "Bulk create orders",
-            description = "Imports a list of orders in transactional or non-transactional mode."
+            description = """
+                    Imports a list of orders in transactional or non-transactional mode.
+                    Demo flow in Swagger:
+                    1. Create customer, category, restaurant and meal using the prepared examples.
+                    2. Run this endpoint with transactional=true to show rollback of the whole batch.
+                    3. Run the same body with transactional=false to show partial save without rollback.
+                    4. Compare database state using GET /api/v1/orders before and after each call.
+                    """
     )
     @ApiResponses(value = {
         @ApiResponse(
@@ -111,8 +136,60 @@ public interface OrderControllerApi {
     @PostMapping("/api/v1/orders/bulk")
     ResponseEntity<List<OrderResponse>> createOrdersBulk(
             @Parameter(description = "List of order payloads", required = true)
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    description = "Ready-made request body for demonstrating transactional vs non-transactional bulk import. Replace customerId and mealIds with real IDs from your DB.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = OrderRequest.class)),
+                            examples = {
+                                @ExampleObject(
+                                        name = "Rollback demo body",
+                                        summary = "Use with transactional=true",
+                                        value = """
+                                                [
+                                                  {
+                                                    "amount": 25.00,
+                                                    "date": "2026-04-07T12:00:00",
+                                                    "description": "TX valid order",
+                                                    "customerId": 1,
+                                                    "mealIds": [1]
+                                                  },
+                                                  {
+                                                    "amount": 30.00,
+                                                    "date": "2026-04-07T12:10:00",
+                                                    "description": "TX invalid order",
+                                                    "customerId": 1,
+                                                    "mealIds": [1, 999999]
+                                                  }
+                                                ]
+                                                """),
+                                @ExampleObject(
+                                        name = "Partial save demo body",
+                                        summary = "Use with transactional=false",
+                                        value = """
+                                                [
+                                                  {
+                                                    "amount": 25.00,
+                                                    "date": "2026-04-07T12:20:00",
+                                                    "description": "NO_TX valid order",
+                                                    "customerId": 1,
+                                                    "mealIds": [1]
+                                                  },
+                                                  {
+                                                    "amount": 30.00,
+                                                    "date": "2026-04-07T12:30:00",
+                                                    "description": "NO_TX invalid order",
+                                                    "customerId": 1,
+                                                    "mealIds": [1, 999999]
+                                                  }
+                                                ]
+                                                """)
+                            }))
             @Valid @RequestBody List<@Valid OrderRequest> requests,
-            @Parameter(description = "Run bulk import inside a transaction", example = "true")
+            @Parameter(
+                    description = "Run bulk import inside a transaction. true = rollback whole batch on error, false = successful items remain in DB.",
+                    example = "true")
             @RequestParam(defaultValue = "true") boolean transactional
     );
 

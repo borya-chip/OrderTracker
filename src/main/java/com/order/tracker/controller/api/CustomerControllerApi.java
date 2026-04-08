@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -70,6 +71,22 @@ public interface CustomerControllerApi {
     @PostMapping("/api/v1/customers")
     ResponseEntity<CustomerResponse> create(
             @Parameter(description = "Customer payload", required = true)
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    description = "Demo customer for transactional bulk import scenario.",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CustomerRequest.class),
+                            examples = @ExampleObject(
+                                    name = "Transactional demo customer",
+                                    value = """
+                                            {
+                                              "firstName": "Alex",
+                                              "lastName": "Brown",
+                                              "email": "alex.tx.demo@example.com",
+                                              "phoneNumber": "+375291112233"
+                                            }
+                                            """)))
             @Valid @RequestBody CustomerRequest request
     );
 
