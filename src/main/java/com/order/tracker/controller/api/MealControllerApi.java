@@ -82,7 +82,11 @@ public interface MealControllerApi {
             @Parameter(description = "Meal payload", required = true)
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     required = true,
-                    description = "Demo meal for transactional bulk import scenario. Replace categoryId and restaurantId with IDs created in previous steps.",
+                    description = """
+                            Demo meal for transactional bulk import scenario.
+                            Replace categoryId and restaurantId with IDs created
+                            in previous steps.
+                            """,
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = MealRequest.class),

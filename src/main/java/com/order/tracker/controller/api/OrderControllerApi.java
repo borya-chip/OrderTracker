@@ -90,7 +90,10 @@ public interface OrderControllerApi {
             @Parameter(description = "Order payload", required = true)
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     required = true,
-                    description = "Single order example. Replace customerId and mealIds with existing IDs from your database.",
+                    description = """
+                            Single order example.
+                            Replace customerId and mealIds with existing IDs from your database.
+                            """,
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = OrderRequest.class),
@@ -138,7 +141,11 @@ public interface OrderControllerApi {
             @Parameter(description = "List of order payloads", required = true)
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     required = true,
-                    description = "Ready-made request body for demonstrating transactional vs non-transactional bulk import. Replace customerId and mealIds with real IDs from your DB.",
+                    description = """
+                            Ready-made request body for demonstrating transactional
+                            vs non-transactional bulk import.
+                            Replace customerId and mealIds with real IDs from your DB.
+                            """,
                     content = @Content(
                             mediaType = "application/json",
                             array = @ArraySchema(schema = @Schema(implementation = OrderRequest.class)),
@@ -188,7 +195,11 @@ public interface OrderControllerApi {
                             }))
             @Valid @RequestBody List<@Valid OrderRequest> requests,
             @Parameter(
-                    description = "Run bulk import inside a transaction. true = rollback whole batch on error, false = successful items remain in DB.",
+                    description = """
+                            Run bulk import inside a transaction.
+                            true = rollback whole batch on error,
+                            false = successful items remain in DB.
+                            """,
                     example = "true")
             @RequestParam(defaultValue = "true") boolean transactional
     );
