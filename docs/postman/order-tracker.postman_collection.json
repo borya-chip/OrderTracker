@@ -709,6 +709,114 @@
           }
         }
       ]
+    },
+    {
+      "name": "Async Orders Demo",
+      "item": [
+        {
+          "name": "Create Orders Async",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const response = pm.response.json();",
+                  "if (response.taskId) {",
+                  "    pm.collectionVariables.set('asyncTaskId', response.taskId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"amount\": 45.00,\n    \"date\": \"2026-04-22T12:00:00\",\n    \"description\": \"Async demo 1\",\n    \"customerId\": {{customerId}},\n    \"mealIds\": [{{mealId}}]\n  },\n  {\n    \"amount\": 46.00,\n    \"date\": \"2026-04-22T12:01:00\",\n    \"description\": \"Async demo 2\",\n    \"customerId\": {{customerId}},\n    \"mealIds\": [{{mealId}}]\n  },\n  {\n    \"amount\": 47.00,\n    \"date\": \"2026-04-22T12:02:00\",\n    \"description\": \"Async demo 3\",\n    \"customerId\": {{customerId}},\n    \"mealIds\": [{{mealId}}]\n  },\n  {\n    \"amount\": 48.00,\n    \"date\": \"2026-04-22T12:03:00\",\n    \"description\": \"Async demo 4\",\n    \"customerId\": {{customerId}},\n    \"mealIds\": [{{mealId}}]\n  },\n  {\n    \"amount\": 49.00,\n    \"date\": \"2026-04-22T12:04:00\",\n    \"description\": \"Async demo 5\",\n    \"customerId\": {{customerId}},\n    \"mealIds\": [{{mealId}}]\n  },\n  {\n    \"amount\": 50.00,\n    \"date\": \"2026-04-22T12:05:00\",\n    \"description\": \"Async demo 6\",\n    \"customerId\": {{customerId}},\n    \"mealIds\": [{{mealId}}]\n  },\n  {\n    \"amount\": 51.00,\n    \"date\": \"2026-04-22T12:06:00\",\n    \"description\": \"Async demo 7\",\n    \"customerId\": {{customerId}},\n    \"mealIds\": [{{mealId}}]\n  },\n  {\n    \"amount\": 52.00,\n    \"date\": \"2026-04-22T12:07:00\",\n    \"description\": \"Async demo 8\",\n    \"customerId\": {{customerId}},\n    \"mealIds\": [{{mealId}}]\n  },\n  {\n    \"amount\": 53.00,\n    \"date\": \"2026-04-22T12:08:00\",\n    \"description\": \"Async demo 9\",\n    \"customerId\": {{customerId}},\n    \"mealIds\": [{{mealId}}]\n  },\n  {\n    \"amount\": 54.00,\n    \"date\": \"2026-04-22T12:09:00\",\n    \"description\": \"Async demo 10\",\n    \"customerId\": {{customerId}},\n    \"mealIds\": [{{mealId}}]\n  }\n]"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/orders/async?transactional=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "async"
+              ],
+              "query": [
+                {
+                  "key": "transactional",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Async Task Status",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/orders/async/status/{{asyncTaskId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "async",
+                "status",
+                "{{asyncTaskId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get All Async Tasks",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/orders/async/tasks",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "orders",
+                "async",
+                "tasks"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Race Condition Demo",
+      "item": [
+        {
+          "name": "Run Race Condition Demo",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/demo/race-condition/run",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "demo",
+                "race-condition",
+                "run"
+              ]
+            }
+          }
+        }
+      ]
     }
   ],
   "variable": [
@@ -735,6 +843,10 @@
     {
       "key": "orderId",
       "value": "1"
+    },
+    {
+      "key": "asyncTaskId",
+      "value": ""
     },
     {
       "key": "searchCategoryName",

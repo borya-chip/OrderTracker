@@ -3,11 +3,13 @@ package com.order.tracker.service.impl;
 import com.order.tracker.domain.Customer;
 import com.order.tracker.dto.request.CustomerRequest;
 import com.order.tracker.dto.response.CustomerResponse;
+import com.order.tracker.exception.DuplicateResourceException;
 import com.order.tracker.exception.ResourceNotFoundException;
 import com.order.tracker.mapper.CustomerMapper;
 import com.order.tracker.repository.CustomerRepository;
 import com.order.tracker.service.CustomerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +28,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerResponse create(final CustomerRequest request) {
         Customer customer = new Customer();
         apply(customer, request);
-        return customerMapper.toResponse(customerRepository.save(customer));
+        return customerMapper.toResponse(saveCustomer(customer));
     }
 
     @Override
@@ -46,7 +48,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerResponse update(final Long id, final CustomerRequest request) {
         Customer customer = findCustomer(id);
         apply(customer, request);
-        return customerMapper.toResponse(customerRepository.save(customer));
+        return customerMapper.toResponse(saveCustomer(customer));
     }
 
     @Override
@@ -68,5 +70,14 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setLastName(request.getLastName());
         customer.setEmail(request.getEmail());
         customer.setPhoneNumber(request.getPhoneNumber());
+    }
+
+    private Customer saveCustomer(final Customer customer) {
+        try {
+            return customerRepository.saveAndFlush(customer);
+        } catch (DataIntegrityViolationException exception) {
+            throw new DuplicateResourceException(
+                    "Customer with email '%s' already exists".formatted(customer.getEmail()));
+        }
     }
 }

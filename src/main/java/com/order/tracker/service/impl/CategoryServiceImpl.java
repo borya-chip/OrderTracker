@@ -6,11 +6,13 @@ import com.order.tracker.domain.Meal;
 import com.order.tracker.domain.Restaurant;
 import com.order.tracker.dto.request.CategoryRequest;
 import com.order.tracker.dto.response.CategoryResponse;
+import com.order.tracker.exception.DuplicateResourceException;
 import com.order.tracker.exception.ResourceNotFoundException;
 import com.order.tracker.mapper.CategoryMapper;
 import com.order.tracker.repository.CategoryRepository;
 import com.order.tracker.service.CategoryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +32,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponse create(final CategoryRequest request) {
         Category category = new Category();
         apply(category, request);
-        Category saved = categoryRepository.save(category);
+        Category saved = saveCategory(category);
         invalidateSearchCache();
         return categoryMapper.toResponse(saved);
     }
@@ -52,7 +54,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponse update(final Long id, final CategoryRequest request) {
         Category category = findCategory(id);
         apply(category, request);
-        Category saved = categoryRepository.save(category);
+        Category saved = saveCategory(category);
         invalidateSearchCache();
         return categoryMapper.toResponse(saved);
     }
@@ -74,6 +76,15 @@ public class CategoryServiceImpl implements CategoryService {
 
     private void apply(final Category category, final CategoryRequest request) {
         category.setName(request.getName());
+    }
+
+    private Category saveCategory(final Category category) {
+        try {
+            return categoryRepository.saveAndFlush(category);
+        } catch (DataIntegrityViolationException exception) {
+            throw new DuplicateResourceException(
+                    "Category with name '%s' already exists".formatted(category.getName()));
+        }
     }
 
     private void invalidateSearchCache() {

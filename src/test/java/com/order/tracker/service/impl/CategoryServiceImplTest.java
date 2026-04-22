@@ -13,6 +13,7 @@ import com.order.tracker.domain.Category;
 import com.order.tracker.domain.Meal;
 import com.order.tracker.domain.Restaurant;
 import com.order.tracker.dto.request.CategoryRequest;
+import com.order.tracker.exception.DuplicateResourceException;
 import com.order.tracker.exception.ResourceNotFoundException;
 import com.order.tracker.mapper.CategoryMapper;
 import com.order.tracker.repository.CategoryRepository;
@@ -23,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 
 @ExtendWith(MockitoExtension.class)
 class CategoryServiceImplTest {
@@ -68,7 +70,7 @@ class CategoryServiceImplTest {
 
     @Test
     void createShouldSaveCategoryAndInvalidateCache() {
-        when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> {
+        when(categoryRepository.saveAndFlush(any(Category.class))).thenAnswer(invocation -> {
             Category category = invocation.getArgument(0);
             category.setId(3L);
             return category;
@@ -82,10 +84,18 @@ class CategoryServiceImplTest {
     }
 
     @Test
+    void createShouldThrowDuplicateExceptionWhenNameExists() {
+        when(categoryRepository.saveAndFlush(any(Category.class)))
+                .thenThrow(new DataIntegrityViolationException("duplicate"));
+
+        assertThrows(DuplicateResourceException.class, () -> service.create(new CategoryRequest("Drinks")));
+    }
+
+    @Test
     void updateShouldSaveCategoryAndInvalidateCache() {
         Category existing = category(5L, "Old");
         when(categoryRepository.findById(5L)).thenReturn(Optional.of(existing));
-        when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(categoryRepository.saveAndFlush(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         var response = service.update(5L, new CategoryRequest("New"));
 

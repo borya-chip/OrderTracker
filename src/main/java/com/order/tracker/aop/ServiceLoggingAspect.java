@@ -1,7 +1,6 @@
 package com.order.tracker.aop;
 
 import com.order.tracker.exception.ApiException;
-import com.order.tracker.exception.LoggingException;
 import java.util.Arrays;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -18,7 +17,6 @@ public class ServiceLoggingAspect {
 
     private static final int SLOW_THRESHOLD_MS = 500;
     private static final int VERY_SLOW_THRESHOLD_MS = 1000;
-    private static final String ERROR_EXECUTING_METHOD = "Error executing method";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceLoggingAspect.class);
 
@@ -61,9 +59,8 @@ public class ServiceLoggingAspect {
             throw apiException;
         } catch (Exception exception) {
             long executionTime = stopAndGetExecutionTime(stopWatch);
-            String message = "%s %s after %d ms"
-                    .formatted(ERROR_EXECUTING_METHOD, fullMethodName, executionTime);
-            throw new LoggingException(message, exception);
+            LOGGER.error("Method {} failed after {} ms", fullMethodName, executionTime, exception);
+            throw exception;
         }
     }
 

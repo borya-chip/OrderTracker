@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.order.tracker.domain.Customer;
 import com.order.tracker.dto.request.CustomerRequest;
+import com.order.tracker.exception.DuplicateResourceException;
 import com.order.tracker.exception.ResourceNotFoundException;
 import com.order.tracker.mapper.CustomerMapper;
 import com.order.tracker.repository.CustomerRepository;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 
 @ExtendWith(MockitoExtension.class)
 class CustomerServiceImplTest {
@@ -63,7 +65,7 @@ class CustomerServiceImplTest {
     @Test
     void createShouldSaveCustomer() {
         CustomerRequest request = new CustomerRequest("Alex", "Brown", "alex@example.com", "+123");
-        when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> {
+        when(customerRepository.saveAndFlush(any(Customer.class))).thenAnswer(invocation -> {
             Customer customer = invocation.getArgument(0);
             customer.setId(8L);
             return customer;
@@ -76,10 +78,19 @@ class CustomerServiceImplTest {
     }
 
     @Test
+    void createShouldThrowDuplicateExceptionWhenEmailExists() {
+        when(customerRepository.saveAndFlush(any(Customer.class)))
+                .thenThrow(new DataIntegrityViolationException("duplicate"));
+
+        assertThrows(DuplicateResourceException.class, () -> service.create(
+                new CustomerRequest("Alex", "Brown", "alex@example.com", "+123")));
+    }
+
+    @Test
     void updateShouldSaveUpdatedCustomer() {
         Customer existing = customer(5L, "Alex", "Brown");
         when(customerRepository.findById(5L)).thenReturn(Optional.of(existing));
-        when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(customerRepository.saveAndFlush(any(Customer.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         var response = service.update(5L, new CustomerRequest("Sam", "Green", "sam@example.com", "+999"));
 
