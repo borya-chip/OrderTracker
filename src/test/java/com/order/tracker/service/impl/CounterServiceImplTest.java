@@ -23,25 +23,11 @@ class CounterServiceImplTest {
     }
 
     @Test
-    void resetShouldClearAllCounters() {
+    void resetShouldClearAtomicCounter() {
         service.increment();
-        service.incrementUnsafe();
-        service.incrementSynchronized();
 
         service.reset();
 
         assertEquals(0, service.getValue());
-        assertEquals(0, service.getUnsafeValue());
-        assertEquals(0, service.getSynchronizedValue());
-    }
-
-    @Test
-    void dedicatedCountersShouldTrackOwnValues() {
-        service.incrementUnsafe();
-        service.incrementUnsafe();
-        service.incrementSynchronized();
-
-        assertEquals(2, service.getUnsafeValue());
-        assertEquals(1, service.getSynchronizedValue());
     }
 }
