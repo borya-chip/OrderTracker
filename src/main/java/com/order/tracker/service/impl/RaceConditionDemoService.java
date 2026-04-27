@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class RaceConditionDemoService {
 
-    private static final int THREAD_COUNT = 64;
-    private static final int INCREMENTS_PER_THREAD = 10_000;
+    private static final int THREAD_COUNT = 50;
+    private static final int INCREMENTS_PER_THREAD = 1000;
     private static final int EXPECTED_VALUE = THREAD_COUNT * INCREMENTS_PER_THREAD;
 
     private final CounterRaceConditionService counterService;
