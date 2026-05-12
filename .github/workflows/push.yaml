@@ -1,0 +1,45 @@
+name: Push Docker Images
+
+on:
+  workflow_call:
+
+jobs:
+  image-build-and-push:
+    name: Build and optionally push Docker images
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      REGISTRY: ${{ vars.REGISTRY }}
+      BACKEND_NAME: ${{ vars.BACKEND_IMAGE_NAME || 'order-tracker-backend' }}
+      FRONTEND_NAME: ${{ vars.FRONTEND_IMAGE_NAME || 'order-tracker-frontend' }}
+      REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+      REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend image
+        run: docker build --file Dockerfile --tag "$BACKEND_NAME:latest" .
+
+      - name: Build frontend image
+        run: docker build --file ./frontend/Dockerfile --tag "$FRONTEND_NAME:latest" ./frontend
+
+      - name: Login to Docker Registry
+        if: env.REGISTRY != '' && env.REGISTRY_USERNAME != '' && env.REGISTRY_PASSWORD != ''
+        run: echo "$REGISTRY_PASSWORD" | docker login -u "$REGISTRY_USERNAME" --password-stdin "$REGISTRY"
+
+      - name: Push backend image
+        if: env.REGISTRY != '' && env.REGISTRY_USERNAME != '' && env.REGISTRY_PASSWORD != ''
+        run: |
+          docker tag "$BACKEND_NAME:latest" "$REGISTRY/$BACKEND_NAME:latest"
+          docker push "$REGISTRY/$BACKEND_NAME:latest"
+
+      - name: Push frontend image
+        if: env.REGISTRY != '' && env.REGISTRY_USERNAME != '' && env.REGISTRY_PASSWORD != ''
+        run: |
+          docker tag "$FRONTEND_NAME:latest" "$REGISTRY/$FRONTEND_NAME:latest"
+          docker push "$REGISTRY/$FRONTEND_NAME:latest"

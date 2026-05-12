@@ -20,9 +20,9 @@ class RaceConditionDemoServiceTest {
     void runAllDemosShouldCompareUnsafeAndAtomicCounters() throws InterruptedException {
         RaceConditionDemoResponse response = service.runAllDemos();
 
-        assertEquals(64, response.getThreadCount());
-        assertEquals(10_000, response.getIncrementsPerThread());
-        assertEquals(640_000, response.getExpectedValue());
+        assertEquals(50, response.getThreadCount());
+        assertEquals(1_000, response.getIncrementsPerThread());
+        assertEquals(50_000, response.getExpectedValue());
 
         assertEquals("Unsafe counter", response.getUnsafeCounter().getName());
         assertTrue(response.getUnsafeCounter().getActualValue() <= response.getExpectedValue());

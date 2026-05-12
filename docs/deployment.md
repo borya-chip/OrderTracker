@@ -137,137 +137,81 @@ Useful Render docs:
 
 ## GitHub Actions CI/CD instructions
 
-The current project already has a CI workflow for Maven verification. To implement the full CI/CD pattern from `FinanceTracker`, split the pipeline into reusable workflows:
+The project uses the same reusable workflow structure as `FinanceTracker`:
 
 ```text
 .github/workflows/pipeline.yaml
 .github/workflows/build.yaml
+.github/workflows/lint.yaml
 .github/workflows/test.yaml
 .github/workflows/push.yaml
 .github/workflows/deploy.yaml
 .github/workflows/health.yaml
 ```
 
-Recommended flow:
+Pipeline flow:
 
 1. `build.yaml`
-   - Checkout repository.
-   - Set up JDK 21.
-   - Cache Maven dependencies.
-   - Set up Node.js 22.
-   - Build backend:
+   - Builds the Spring Boot backend.
+   - Builds the React frontend.
 
-```bash
-./mvnw -B -DskipTests package
+2. `lint.yaml`
+   - Runs backend Checkstyle.
+   - Runs frontend ESLint.
+   - Runs SonarQube if `SONAR_TOKEN` is configured.
+
+3. `test.yaml`
+   - Runs backend tests with coverage.
+
+4. `push.yaml`
+   - Builds backend and frontend Docker images.
+   - Pushes them only if registry variables and secrets are configured.
+   - For Render source deploys, this still validates Docker builds even without a registry.
+
+5. `deploy.yaml`
+   - Calls Render deploy hooks for backend and frontend.
+
+6. `health.yaml`
+   - Checks backend `/api/v1/health`.
+   - Checks frontend `/`.
+
+7. `pipeline.yaml`
+   - Calls workflows in this order: build, lint, test, push, deploy, health.
+
+Add these GitHub secrets:
+
+```text
+RENDER_BACKEND_DEPLOY_HOOK_URL
+RENDER_FRONTEND_DEPLOY_HOOK_URL
+BACKEND_URL
+FRONTEND_URL
 ```
 
-   - Build frontend:
-
-```bash
-cd frontend
-npm install
-npm run build
-```
-
-2. `test.yaml`
-   - Checkout repository.
-   - Set up JDK 21.
-   - Cache Maven dependencies.
-   - Run backend tests:
-
-```bash
-./mvnw -B verify
-```
-
-   - Optionally run frontend lint:
-
-```bash
-cd frontend
-npm install
-npm run lint
-```
-
-3. `push.yaml`
-   - Run only on `push`.
-   - Log in to a Docker registry.
-   - Build and push the backend image:
-
-```bash
-docker buildx build \
-  --no-cache \
-  --push \
-  --tag $REGISTRY/$BACKEND_IMAGE_NAME:latest \
-  --file Dockerfile \
-  .
-```
-
-   - Build and push the frontend image:
-
-```bash
-docker buildx build \
-  --no-cache \
-  --push \
-  --tag $REGISTRY/$FRONTEND_IMAGE_NAME:latest \
-  --file frontend/Dockerfile \
-  frontend
-```
-
-4. `deploy.yaml`
-   - For Render, use one of these approaches:
-     - Connect Render directly to GitHub and let Render auto-deploy after pushes to `main`.
-     - Or call a Render Deploy Hook from GitHub Actions after build/test/push.
-
-Example deploy hook step:
-
-```yaml
-- name: Deploy to Render
-  run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
-```
-
-5. `health.yaml`
-   - Wait for deploy.
-   - Call the public health endpoint.
-
-Example:
-
-```yaml
-- name: Health check
-  run: |
-    for attempt in $(seq 1 30); do
-      if curl --fail --silent "${{ secrets.APP_URL }}/api/v1/health"; then
-        exit 0
-      fi
-
-      echo "Attempt ${attempt}/30 failed"
-      sleep 10
-    done
-
-    exit 1
-```
-
-6. `pipeline.yaml`
-   - Call workflows in this order:
-     - build
-     - test
-     - push
-     - deploy
-     - health
-
-Required GitHub secrets:
+Optional GitHub secrets:
 
 ```text
 REGISTRY_USERNAME
 REGISTRY_PASSWORD
-RENDER_DEPLOY_HOOK_URL
-APP_URL
+SONAR_TOKEN
 ```
 
-Required GitHub variables:
+Optional GitHub variables:
 
 ```text
 REGISTRY
 BACKEND_IMAGE_NAME
 FRONTEND_IMAGE_NAME
+SONAR_ORGANIZATION
+SONAR_PROJECT_KEY
 ```
 
-If Render builds directly from GitHub and you do not push Docker images to a registry, the registry secrets and `push.yaml` step are optional. In that simpler setup, GitHub Actions runs build/test, then triggers Render deploy, then checks `/api/v1/health`.
+Recommended values:
+
+```text
+BACKEND_URL=https://ordertracker-9l11.onrender.com
+FRONTEND_URL=https://<your-frontend-service>.onrender.com
+BACKEND_IMAGE_NAME=order-tracker-backend
+FRONTEND_IMAGE_NAME=order-tracker-frontend
+```
+
+If Render builds directly from GitHub and you do not push Docker images to a registry, do not configure registry secrets. The workflow will build Docker images locally for validation and skip pushing them.
