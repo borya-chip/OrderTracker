@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
 import {
@@ -77,5 +77,20 @@ export function useMeal(mealId: number | null) {
     queryKey: queryKeys.meal(String(mealId ?? '')),
     queryFn: () => getMeal(mealId ?? 0),
     enabled: isEnabled,
+  })
+}
+
+export function useMealsByIds(mealIds: number[], enabled = true) {
+  const uniqueMealIds = useMemo(
+    () => Array.from(new Set(mealIds)).filter((mealId) => mealId > 0),
+    [mealIds],
+  )
+
+  return useQueries({
+    queries: uniqueMealIds.map((mealId) => ({
+      queryKey: queryKeys.meal(String(mealId)),
+      queryFn: () => getMeal(mealId),
+      enabled,
+    })),
   })
 }

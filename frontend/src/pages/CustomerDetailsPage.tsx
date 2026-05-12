@@ -1,4 +1,4 @@
-import { ArrowLeft, ClipboardList, Mail, Phone, UserRound } from 'lucide-react'
+import { ArrowLeft, ClipboardList, Eye, Mail, Phone, UserRound } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
@@ -132,7 +132,13 @@ export function CustomerDetailsPage() {
                         <td className="amount-cell">{formatCurrency(Number(order.amount))}</td>
                         <td>{formatDateTime(order.date)}</td>
                         <td className="table-link-cell">
-                          <Link className="status-badge processing" to={`/orders/${order.id}`}>Details</Link>
+                          <Link
+                            className="table-icon-button"
+                            to={`/orders/${order.id}`}
+                            aria-label={`View order ${order.id}`}
+                          >
+                            <Eye aria-hidden="true" size={15} />
+                          </Link>
                         </td>
                       </tr>
                     ))}

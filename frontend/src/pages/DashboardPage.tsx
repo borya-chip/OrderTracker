@@ -1,4 +1,4 @@
-import { Beef, ClipboardList, Plus, Store, Tags, Users } from 'lucide-react'
+import { Beef, ClipboardList, Eye, Plus, Store, Tags, Users } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
@@ -411,8 +411,12 @@ export function DashboardPage() {
                       <td className="amount-cell">{formatCurrency(Number(order.amount))}</td>
                       <td>{formatDateTime(order.date)}</td>
                       <td className="table-link-cell">
-                        <Link className="status-badge processing" to={`/orders/${order.id}`}>
-                          Details
+                        <Link
+                          className="table-icon-button"
+                          to={`/orders/${order.id}`}
+                          aria-label={`View order for ${order.customerName}`}
+                        >
+                          <Eye aria-hidden="true" size={15} />
                         </Link>
                       </td>
                     </tr>

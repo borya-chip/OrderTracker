@@ -1,13 +1,11 @@
-import { ArrowLeft, Beef, CalendarClock, ClipboardList, UserRound } from 'lucide-react'
+import { ArrowLeft, Beef, CalendarClock, ClipboardList, Eye, UserRound } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
-import { useMeals } from '../hooks/useMeals'
+import { useMealsByIds } from '../hooks/useMeals'
 import { useOrder } from '../hooks/useOrders'
 import type { MealResponse } from '../shared/api/meals'
 import { formatCurrency, formatDateTime } from '../shared/lib/format'
-
-const RELATED_MEALS_PAGE_SIZE = 50
 
 function parseRouteId(value: string | undefined): number | null {
   const parsedValue = Number(value)
@@ -34,19 +32,20 @@ export function OrderDetailsPage() {
   const { orderId } = useParams()
   const parsedOrderId = parseRouteId(orderId)
   const orderQuery = useOrder(parsedOrderId)
-  const mealsRequest = useMemo(
-    () => ({ page: 0, size: RELATED_MEALS_PAGE_SIZE, sortBy: 'name' as const, ascending: true }),
-    [],
-  )
-  const { mealsQuery } = useMeals(mealsRequest, {
-    enabled: parsedOrderId !== null && orderQuery.isSuccess,
-  })
-
   const order = orderQuery.data
+  const mealIds = useMemo(() => order?.mealIds ?? [], [order?.mealIds])
+  const mealQueries = useMealsByIds(
+    mealIds,
+    parsedOrderId !== null && orderQuery.isSuccess && mealIds.length > 0,
+  )
+
+  const loadedMeals = useMemo(
+    () => mealQueries.flatMap((mealQuery) => (mealQuery.data ? [mealQuery.data] : [])),
+    [mealQueries],
+  )
   const orderMeals = useMemo(() => {
-    const allMeals = mealsQuery.data?.content ?? []
-    return order ? buildOrderMeals(allMeals, order.mealIds, order.mealNames) : []
-  }, [mealsQuery.data?.content, order])
+    return order ? buildOrderMeals(loadedMeals, order.mealIds, order.mealNames) : []
+  }, [loadedMeals, order])
 
   if (parsedOrderId === null) {
     return (
@@ -60,8 +59,9 @@ export function OrderDetailsPage() {
     )
   }
 
-  const isLoading = orderQuery.isLoading || mealsQuery.isLoading
-  const error = orderQuery.error ?? mealsQuery.error
+  const isLoading = orderQuery.isLoading || mealQueries.some((mealQuery) => mealQuery.isLoading)
+  const mealsError = mealQueries.find((mealQuery) => mealQuery.error)?.error
+  const error = orderQuery.error ?? mealsError
 
   return (
     <section className="resource-page">
@@ -158,7 +158,9 @@ export function OrderDetailsPage() {
                         </td>
                         <td>{meal.cookingTime === undefined ? '—' : `${meal.cookingTime} min`}</td>
                         <td className="table-link-cell">
-                          <Link className="status-badge processing" to={`/meals/${meal.id}`}>Details</Link>
+                          <Link className="table-icon-button" to={`/meals/${meal.id}`} aria-label={`View ${meal.name}`}>
+                            <Eye aria-hidden="true" size={15} />
+                          </Link>
                         </td>
                       </tr>
                     ))}

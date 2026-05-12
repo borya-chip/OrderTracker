@@ -2,16 +2,39 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Edit3, Plus, Search, Tags, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link, useOutletContext } from 'react-router-dom'
+import { useOutletContext } from 'react-router-dom'
 import { z } from 'zod'
 
-import { Pagination } from '../components/ui/Pagination'
 import { useCategories } from '../hooks/useCategories'
+import { useMeals } from '../hooks/useMeals'
 import type { AppLayoutContext } from '../components/layout/AppLayout'
 import type {
   CategoryResponse,
   CreateCategoryRequest,
 } from '../shared/api/categories'
+
+const CATEGORY_MEALS_PAGE_SIZE = 1000
+const DEFAULT_CATEGORY_ICON = '🍽️'
+const CATEGORY_ICONS: Record<string, string> = {
+  'Asian Food': '🍜',
+  Bakery: '🥐',
+  Breakfast: '🍳',
+  Burgers: '🍔',
+  Desserts: '🍰',
+  Drinks: '🥤',
+  Grill: '🍖',
+  Pasta: '🍝',
+  Pizza: '🍕',
+  Salads: '🥗',
+  Seafood: '🦐',
+  Sushi: '🍣',
+}
+const NORMALIZED_CATEGORY_ICONS = new Map(
+  Object.entries(CATEGORY_ICONS).map(([categoryName, icon]) => [
+    normalizeCategoryName(categoryName),
+    icon,
+  ]),
+)
 
 const emptyCategoryValues = {
   name: '',
@@ -27,6 +50,18 @@ function getErrorMessage(error: Error | null): string {
   return error?.message ?? 'Unexpected loading error'
 }
 
+function normalizeCategoryName(categoryName: string): string {
+  return categoryName.trim().replace(/\s+/g, ' ').toLowerCase()
+}
+
+function getCategoryIcon(category: CategoryResponse): string {
+  return NORMALIZED_CATEGORY_ICONS.get(normalizeCategoryName(category.name)) ?? DEFAULT_CATEGORY_ICON
+}
+
+function formatMealsCount(mealsCount: number): string {
+  return `${mealsCount} ${mealsCount === 1 ? 'meal' : 'meals'}`
+}
+
 function toCategoryRequest(values: CategoryFormValues): CreateCategoryRequest {
   return {
     name: values.name.trim(),
@@ -40,8 +75,11 @@ export function CategoriesPage() {
     updateCategoryMutation,
     deleteCategoryMutation,
   } = useCategories()
-  const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
+  const mealsRequest = useMemo(
+    () => ({ page: 0, size: CATEGORY_MEALS_PAGE_SIZE, sortBy: 'name' as const, ascending: true }),
+    [],
+  )
+  const { mealsQuery } = useMeals(mealsRequest)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingCategory, setEditingCategory] = useState<CategoryResponse | null>(null)
   const [categoryToDelete, setCategoryToDelete] = useState<CategoryResponse | null>(null)
@@ -58,6 +96,16 @@ export function CategoriesPage() {
   })
 
   const categories = useMemo(() => categoriesQuery.data ?? [], [categoriesQuery.data])
+  const meals = useMemo(() => mealsQuery.data?.content ?? [], [mealsQuery.data?.content])
+  const mealsCountByCategoryId = useMemo(() => {
+    const counts = new Map<number, number>()
+
+    for (const meal of meals) {
+      counts.set(meal.categoryId, (counts.get(meal.categoryId) ?? 0) + 1)
+    }
+
+    return counts
+  }, [meals])
   const normalizedFilter = topbarSearch.trim().toLowerCase()
 
   const filteredCategories = useMemo(() => {
@@ -69,12 +117,6 @@ export function CategoriesPage() {
       category.name.toLowerCase().includes(normalizedFilter),
     )
   }, [categories, normalizedFilter])
-  const totalPages = Math.max(1, Math.ceil(filteredCategories.length / pageSize))
-  const currentPage = Math.min(page, totalPages)
-  const paginatedCategories = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize
-    return filteredCategories.slice(startIndex, startIndex + pageSize)
-  }, [currentPage, filteredCategories, pageSize])
 
   const isSaving = createCategoryMutation.isPending || updateCategoryMutation.isPending
   const saveError = createCategoryMutation.error ?? updateCategoryMutation.error
@@ -142,25 +184,31 @@ export function CategoriesPage() {
           </button>
         </div>
 
-        {categoriesQuery.isLoading && (
+        {(categoriesQuery.isLoading || mealsQuery.isLoading) && (
           <div className="state-panel">
             <div className="spinner" />
             <strong>Loading categories</strong>
-            <span>Preparing the category list.</span>
+            <span>Preparing categories and meal counts.</span>
           </div>
         )}
 
-        {categoriesQuery.isError && (
+        {(categoriesQuery.isError || mealsQuery.isError) && (
           <div className="state-panel error-state">
             <strong>Could not load categories</strong>
-            <span>{getErrorMessage(categoriesQuery.error)}</span>
-            <button type="button" onClick={() => void categoriesQuery.refetch()}>
+            <span>{getErrorMessage(categoriesQuery.error ?? mealsQuery.error)}</span>
+            <button
+              type="button"
+              onClick={() => {
+                void categoriesQuery.refetch()
+                void mealsQuery.refetch()
+              }}
+            >
               Try again
             </button>
           </div>
         )}
 
-        {categoriesQuery.isSuccess && categories.length === 0 && (
+        {categoriesQuery.isSuccess && mealsQuery.isSuccess && categories.length === 0 && (
           <div className="state-panel">
             <Tags aria-hidden="true" size={28} />
             <strong>No categories yet</strong>
@@ -168,7 +216,10 @@ export function CategoriesPage() {
           </div>
         )}
 
-        {categoriesQuery.isSuccess && categories.length > 0 && filteredCategories.length === 0 && (
+        {categoriesQuery.isSuccess &&
+          mealsQuery.isSuccess &&
+          categories.length > 0 &&
+          filteredCategories.length === 0 && (
           <div className="state-panel">
             <Search aria-hidden="true" size={28} />
             <strong>No matches</strong>
@@ -176,70 +227,44 @@ export function CategoriesPage() {
           </div>
         )}
 
-        {categoriesQuery.isSuccess && filteredCategories.length > 0 && (
-          <>
-            <div className="orders-table-wrap resource-table-wrap">
-              <table className="orders-table resource-table">
-                <thead>
-                  <tr>
-                    <th>Category</th>
-                    <th>Usage</th>
-                    <th>Details</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginatedCategories.map((category) => (
-                    <tr key={category.id}>
-                      <td>
-                        <strong>{category.name}</strong>
-                        <span>Meal category</span>
-                      </td>
-                      <td>
-                        <span className="status-badge processing">Meals group</span>
-                      </td>
-                      <td className="table-link-cell">
-                        <Link className="status-badge processing" to={`/categories/${category.id}`}>
-                          Details
-                        </Link>
-                      </td>
-                      <td className="table-actions-cell">
-                        <div className="row-actions">
-                          <button
-                            className="table-icon-button"
-                            type="button"
-                            aria-label={`Edit ${category.name}`}
-                            onClick={() => openEditDialog(category)}
-                          >
-                            <Edit3 aria-hidden="true" size={15} />
-                          </button>
-                          <button
-                            className="table-icon-button danger"
-                            type="button"
-                            aria-label={`Delete ${category.name}`}
-                            onClick={() => setCategoryToDelete(category)}
-                          >
-                            <Trash2 aria-hidden="true" size={15} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+        {categoriesQuery.isSuccess && mealsQuery.isSuccess && filteredCategories.length > 0 && (
+          <div className="category-card-grid">
+            {filteredCategories.map((category) => {
+              const mealsCount = mealsCountByCategoryId.get(category.id) ?? 0
 
-            <Pagination
-              page={currentPage}
-              pageSize={pageSize}
-              totalItems={filteredCategories.length}
-              onPageChange={setPage}
-              onPageSizeChange={(nextPageSize) => {
-                setPageSize(nextPageSize)
-                setPage(1)
-              }}
-            />
-          </>
+              return (
+                <article className="category-card-item" key={category.id}>
+                  <div className="category-card-topline">
+                    <div className="category-card-icon" aria-hidden="true">
+                      {getCategoryIcon(category)}
+                    </div>
+                    <div className="row-actions category-card-actions">
+                      <button
+                        className="table-icon-button"
+                        type="button"
+                        aria-label={`Edit ${category.name}`}
+                        onClick={() => openEditDialog(category)}
+                      >
+                        <Edit3 aria-hidden="true" size={15} />
+                      </button>
+                      <button
+                        className="table-icon-button danger"
+                        type="button"
+                        aria-label={`Delete ${category.name}`}
+                        onClick={() => setCategoryToDelete(category)}
+                      >
+                        <Trash2 aria-hidden="true" size={15} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="category-card-copy">
+                    <strong>{category.name}</strong>
+                    <span>{formatMealsCount(mealsCount)}</span>
+                  </div>
+                </article>
+              )
+            })}
+          </div>
         )}
       </article>
 

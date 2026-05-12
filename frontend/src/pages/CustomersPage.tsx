@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Edit3, Plus, Search, Trash2, Users } from 'lucide-react'
+import { Edit3, Eye, Plus, Search, Trash2, Users } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useOutletContext, useSearchParams } from 'react-router-dom'
@@ -274,8 +274,12 @@ export function CustomersPage() {
                           <span>Per order</span>
                         </td>
                         <td className="table-link-cell">
-                          <Link className="status-badge processing" to={`/customers/${customer.id}`}>
-                            Details
+                          <Link
+                            className="table-icon-button"
+                            to={`/customers/${customer.id}`}
+                            aria-label={`View ${customer.firstName} ${customer.lastName}`}
+                          >
+                            <Eye aria-hidden="true" size={15} />
                           </Link>
                         </td>
                         <td className="table-actions-cell">

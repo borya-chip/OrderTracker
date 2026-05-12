@@ -1,0 +1,11 @@
+.git
+.github
+.mvn
+.m2
+.vscode
+.codex
+.agents
+target
+logs
+frontend/node_modules
+frontend/dist

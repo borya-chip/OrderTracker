@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Beef, ChevronDown, Edit3, Plus, Search, Trash2 } from 'lucide-react'
+import { Beef, ChevronDown, Edit3, Eye, Plus, Search, Trash2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useOutletContext, useSearchParams } from 'react-router-dom'
@@ -308,8 +308,8 @@ export function MealsPage() {
                       <td className="amount-cell">${Number(meal.price).toFixed(2)}</td>
                       <td>{meal.cookingTime} min</td>
                       <td className="table-link-cell">
-                        <Link className="status-badge processing" to={`/meals/${meal.id}`}>
-                          Details
+                        <Link className="table-icon-button" to={`/meals/${meal.id}`} aria-label={`View ${meal.name}`}>
+                          <Eye aria-hidden="true" size={15} />
                         </Link>
                       </td>
                       <td className="table-actions-cell">

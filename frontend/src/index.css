@@ -52,6 +52,32 @@ textarea {
   font: inherit;
 }
 
+input,
+select,
+textarea {
+  outline: none;
+}
+
+input:focus,
+input:focus-visible,
+select:focus,
+select:focus-visible,
+textarea:focus,
+textarea:focus-visible {
+  outline: none;
+}
+
+input[type="search"] {
+  appearance: none;
+}
+
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  appearance: none;
+}
+
 button {
   cursor: pointer;
 }
@@ -220,6 +246,7 @@ a {
   gap: 24px;
   padding: 26px 30px 18px;
   border-bottom: 1px solid rgba(225, 216, 206, 0.72);
+  margin-bottom: 15px;
 }
 
 .topbar-copy {
@@ -272,6 +299,7 @@ a {
 }
 
 .topbar-search input {
+  appearance: none;
   width: 100%;
   border: 0;
   outline: 0;
@@ -279,6 +307,20 @@ a {
   color: var(--text);
   font-size: 13px;
   font-weight: var(--font-weight-medium);
+}
+
+.topbar-search input:focus,
+.topbar-search input:focus-visible {
+  border: 0;
+  outline: 0;
+  box-shadow: none;
+}
+
+.topbar-search input::-webkit-search-decoration,
+.topbar-search input::-webkit-search-cancel-button,
+.topbar-search input::-webkit-search-results-button,
+.topbar-search input::-webkit-search-results-decoration {
+  appearance: none;
 }
 
 .topbar-search input::placeholder {
@@ -1418,6 +1460,84 @@ a {
   min-width: 760px;
 }
 
+.category-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+}
+
+.category-card-item {
+  display: flex;
+  min-height: 152px;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  padding: 16px;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.category-card-item:hover {
+  border-color: rgba(255, 107, 44, 0.32);
+  box-shadow: 0 16px 30px rgba(88, 68, 53, 0.08);
+  transform: translateY(-2px);
+}
+
+.category-card-topline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.category-card-icon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff2e8;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  font-size: 21px;
+  line-height: 1;
+  text-align: center;
+}
+
+.category-card-actions {
+  justify-content: flex-end;
+}
+
+.category-card-copy {
+  min-width: 0;
+}
+
+.category-card-copy strong,
+.category-card-copy span {
+  display: block;
+}
+
+.category-card-copy strong {
+  color: var(--text);
+  font-size: 15px;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.category-card-copy span {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: var(--font-weight-regular);
+}
+
 .row-actions {
   display: flex;
   align-items: center;
@@ -1841,10 +1961,7 @@ a {
 }
 
 button:focus-visible,
-a:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible {
+a:focus-visible {
   outline: 3px solid rgba(255, 107, 44, 0.18);
   outline-offset: 2px;
 }

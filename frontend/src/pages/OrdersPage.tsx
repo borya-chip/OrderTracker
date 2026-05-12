@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CalendarRange, ChevronDown, ClipboardList, Edit3, Plus, Search, Trash2 } from 'lucide-react'
+import { CalendarRange, ChevronDown, ClipboardList, Edit3, Eye, Plus, Search, Trash2 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Controller, useForm, useWatch } from 'react-hook-form'
 import { Link, useOutletContext, useSearchParams } from 'react-router-dom'
@@ -427,8 +427,12 @@ export function OrdersPage() {
                                  <td className="table-copy-cell">{order.description}</td>
                                  <td className="table-actions-cell">
                                     <div className="row-actions">
-                                       <Link className="status-badge processing" to={`/orders/${order.id}`}>
-                                          Details
+                                       <Link
+                                          className="table-icon-button"
+                                          to={`/orders/${order.id}`}
+                                          aria-label={`View order for ${order.customerName}`}
+                                       >
+                                          <Eye aria-hidden="true" size={15} />
                                        </Link>
                                        <button
                                           className="table-icon-button"

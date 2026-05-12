@@ -1,4 +1,4 @@
-import { ArrowLeft, Beef, Mail, MapPin, Phone, Store } from 'lucide-react'
+import { ArrowLeft, Beef, Eye, Mail, MapPin, Phone, Store } from 'lucide-react'
 import { useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
 
@@ -142,7 +142,9 @@ export function RestaurantDetailsPage() {
                         <td className="amount-cell">{formatCurrency(Number(meal.price))}</td>
                         <td>{meal.cookingTime} min</td>
                         <td className="table-link-cell">
-                          <Link className="status-badge processing" to={`/meals/${meal.id}`}>Details</Link>
+                          <Link className="table-icon-button" to={`/meals/${meal.id}`} aria-label={`View ${meal.name}`}>
+                            <Eye aria-hidden="true" size={15} />
+                          </Link>
                         </td>
                       </tr>
                     ))}
