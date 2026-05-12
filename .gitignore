@@ -4,6 +4,8 @@ logs/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+deployment.md
+
 
 ### STS ###
 .apt_generated
