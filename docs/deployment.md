@@ -15,6 +15,7 @@ REGISTRY=local
 BACKEND_IMAGE_NAME=order-tracker
 FRONTEND_IMAGE_NAME=order-tracker-frontend
 FRONTEND_PORT=3000
+BACKEND_URL=http://order-tracker:8080
 ```
 
 2. Build and start the application with PostgreSQL and frontend:
@@ -119,7 +120,13 @@ The endpoint should return HTTP 200 and `"status": "UP"`.
    - Root directory: `frontend`.
    - Dockerfile path: `Dockerfile`.
    - Health check path: `/`.
-   - The current nginx config proxies `/api`, `/v3`, and `/swagger-ui` to `http://order-tracker:8080`, which works inside Docker Compose. For separate Render services, replace `proxy_pass http://order-tracker:8080;` in `frontend/nginx.conf` with the public backend URL or use Render rewrite/proxy rules.
+   - Add this environment variable:
+
+```env
+BACKEND_URL=https://ordertracker-9l11.onrender.com
+```
+
+The frontend nginx config proxies `/api`, `/v3`, and `/swagger-ui` to `BACKEND_URL`. Locally Docker Compose sets it to `http://order-tracker:8080`; on Render set it to the public backend URL.
 
 Useful Render docs:
 - Docker on Render: https://render.com/docs/docker
